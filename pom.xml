@@ -8,8 +8,8 @@
 	</modules>
 	<parent>
 		<groupId>com.github.tadukoo.maven</groupId>
-		<artifactId>TadukooMavenLibraryPOM</artifactId>
-		<version>0.1-Alpha</version>
+		<artifactId>TadukooMavenParsingPOM</artifactId>
+		<version>0.2-Alpha-SNAPSHOT</version>
 	</parent>
 	<groupId>com.github.tadukoo.parsing.code</groupId>
 	<artifactId>TadukooCodeParsing</artifactId>
@@ -19,7 +19,6 @@
 	<properties>
 		<!-- Info -->
 		<shortName>TadukooCodeParsing</shortName>
-		<tadukoo.util.version>0.5-Beta-SNAPSHOT</tadukoo.util.version>
+		<tadukoo.parsing.version>0.3.1-Alpha-SNAPSHOT</tadukoo.parsing.version>
 	</properties>
-
 </project>

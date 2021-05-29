@@ -10,10 +10,10 @@
 	</parent>
 	<artifactId>TadukooJava</artifactId>
 	<dependencies>
-		<!-- Tadukoo Lang -->
+		<!-- Tadukoo Parsing -->
 		<dependency>
-			<groupId>${tadukoo.util.groupID}</groupId>
-			<artifactId>${tadukoo.util.lang.artifactID}</artifactId>
+			<groupId>${tadukoo.parsing.groupID}</groupId>
+			<artifactId>${tadukoo.parsing.parsing.artifactID}</artifactId>
 		</dependency>
 		<!-- JUnit Stuff -->
 		<dependency>
