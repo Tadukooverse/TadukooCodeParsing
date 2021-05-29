@@ -9,7 +9,7 @@
 	<parent>
 		<groupId>com.github.tadukoo.maven</groupId>
 		<artifactId>TadukooMavenParsingPOM</artifactId>
-		<version>0.2-Alpha-SNAPSHOT</version>
+		<version>0.2-Alpha</version>
 	</parent>
 	<groupId>com.github.tadukoo.parsing.code</groupId>
 	<artifactId>TadukooCodeParsing</artifactId>
