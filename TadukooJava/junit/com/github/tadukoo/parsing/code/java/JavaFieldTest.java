@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -23,6 +24,11 @@ public class JavaFieldTest{
 	@Test
 	public void testDefaultVisibility(){
 		assertEquals(Visibility.PRIVATE, field.getVisibility());
+	}
+	
+	@Test
+	public void testDefaultIsFinal(){
+		assertFalse(field.isFinal());
 	}
 	
 	@Test
@@ -70,6 +76,27 @@ public class JavaFieldTest{
 				.build();
 		
 		assertEquals(Visibility.PUBLIC, field.getVisibility());
+	}
+	
+	@Test
+	public void testSetIsFinal(){
+		field = JavaField.builder()
+				.type("int").name("test").isFinal(false)
+				.build();
+		assertFalse(field.isFinal());
+		
+		field = JavaField.builder()
+				.type("int").name("test").isFinal(true)
+				.build();
+		assertTrue(field.isFinal());
+	}
+	
+	@Test
+	public void testIsFinal(){
+		field = JavaField.builder()
+				.type("int").name("test").isFinal()
+				.build();
+		assertTrue(field.isFinal());
 	}
 	
 	@Test
@@ -150,6 +177,17 @@ public class JavaFieldTest{
 	}
 	
 	@Test
+	public void testToStringWithIsFinal(){
+		field = JavaField.builder()
+				.type("int").name("test")
+				.isFinal()
+				.build();
+		String javaString = """
+				private final int test""";
+		assertEquals(javaString, field.toString());
+	}
+	
+	@Test
 	public void testToStringWithValue(){
 		field = JavaField.builder()
 				.type("int").name("test")
@@ -164,12 +202,13 @@ public class JavaFieldTest{
 				.type("int").name("test")
 				.annotation(JavaAnnotation.builder().name("Test").build())
 				.annotation(JavaAnnotation.builder().name("Derp").build())
+				.isFinal()
 				.value("42")
 				.build();
 		String javaString = """
 				@Test
 				@Derp
-				private int test = 42""";
+				private final int test = 42""";
 		assertEquals(javaString, field.toString());
 	}
 }

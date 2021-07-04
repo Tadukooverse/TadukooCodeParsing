@@ -36,6 +36,11 @@ public class JavaField{
 	 *         <td>{@link Visibility#PRIVATE}</td>
 	 *     </tr>
 	 *     <tr>
+	 *         <td>final</td>
+	 *         <td>If the field is final or not</td>
+	 *         <td>false</td>
+	 *     </tr>
+	 *     <tr>
 	 *         <td>type</td>
 	 *         <td>The type of the field</td>
 	 *         <td>Required</td>
@@ -61,6 +66,8 @@ public class JavaField{
 		private List<JavaAnnotation> annotations = new ArrayList<>();
 		/** The {@link Visibility} of the field */
 		private Visibility visibility = Visibility.PRIVATE;
+		/** Whether the field is final or not */
+		private boolean isFinal = false;
 		/** The type of the field */
 		private String type = null;
 		/** The name of the field */
@@ -95,6 +102,25 @@ public class JavaField{
 		 */
 		public JavaFieldBuilder visibility(Visibility visibility){
 			this.visibility = visibility;
+			return this;
+		}
+		
+		/**
+		 * Sets the field to be final
+		 *
+		 * @return this, to continue building
+		 */
+		public JavaFieldBuilder isFinal(){
+			isFinal = true;
+			return this;
+		}
+		
+		/**
+		 * @param isFinal Whether the field is final or not
+		 * @return this, to continue building
+		 */
+		public JavaFieldBuilder isFinal(boolean isFinal){
+			this.isFinal = isFinal;
 			return this;
 		}
 		
@@ -155,7 +181,7 @@ public class JavaField{
 		public JavaField build(){
 			checkForErrors();
 			
-			return new JavaField(annotations, visibility, type, name, value);
+			return new JavaField(annotations, visibility, isFinal, type, name, value);
 		}
 	}
 	
@@ -163,6 +189,8 @@ public class JavaField{
 	private final List<JavaAnnotation> annotations;
 	/** The {@link Visibility} of the field */
 	private final Visibility visibility;
+	/** Whether the field is final or not */
+	private final boolean isFinal;
 	/** The type of the field */
 	private final String type;
 	/** The name of the field */
@@ -175,13 +203,17 @@ public class JavaField{
 	 *
 	 * @param annotations The {@link JavaAnnotation annotations} on the field
 	 * @param visibility The {@link Visibility} of the field
+	 * @param isFinal Whether the field is final or not
 	 * @param type The type of the field
 	 * @param name The name of the field
 	 * @param value The value assigned to the field
 	 */
-	private JavaField(List<JavaAnnotation> annotations, Visibility visibility, String type, String name, String value){
+	private JavaField(
+			List<JavaAnnotation> annotations, Visibility visibility, boolean isFinal, String type,
+			String name, String value){
 		this.annotations = annotations;
 		this.visibility = visibility;
+		this.isFinal = isFinal;
 		this.type = type;
 		this.name = name;
 		this.value = value;
@@ -206,6 +238,13 @@ public class JavaField{
 	 */
 	public Visibility getVisibility(){
 		return visibility;
+	}
+	
+	/**
+	 * @return Whether the field is final or not
+	 */
+	public boolean isFinal(){
+		return isFinal;
 	}
 	
 	/**
@@ -244,7 +283,7 @@ public class JavaField{
 		}
 		
 		// Add field declaration
-		String declaration = visibility.getText() + " " + type + " " + name;
+		String declaration = visibility.getText() + (isFinal?" final":"") + " " + type + " " + name;
 		// Add value to declaration if we have one
 		if(StringUtil.isNotBlank(value)){
 			declaration += " = " + value;
