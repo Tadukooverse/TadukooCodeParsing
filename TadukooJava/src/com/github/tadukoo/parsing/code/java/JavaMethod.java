@@ -52,6 +52,11 @@ public class JavaMethod{
 	 *         <td>An empty list</td>
 	 *     </tr>
 	 *     <tr>
+	 *         <td>throwTypes</td>
+	 *         <td>The types that can be thrown by the method</td>
+	 *         <td>An empty list</td>
+	 *     </tr>
+	 *     <tr>
 	 *         <td>lines</td>
 	 *         <td>The actual lines of code in the method</td>
 	 *         <td>An empty list</td>
@@ -73,6 +78,8 @@ public class JavaMethod{
 		private String name = null;
 		/** The parameters used in the method - pairs of type, then name */
 		private List<Pair<String, String>> parameters = new ArrayList<>();
+		/** The types that can be thrown by the method */
+		private List<String> throwTypes = new ArrayList<>();
 		/** The actual lines of code in the method */
 		private List<String> lines = new ArrayList<>();
 		
@@ -153,6 +160,24 @@ public class JavaMethod{
 		}
 		
 		/**
+		 * @param throwTypes The types the method can throw
+		 * @return this, to continue building
+		 */
+		public JavaMethodBuilder throwTypes(List<String> throwTypes){
+			this.throwTypes = throwTypes;
+			return this;
+		}
+		
+		/**
+		 * @param throwType A type the method can throw - to add to the list
+		 * @return this, to continue building
+		 */
+		public JavaMethodBuilder throwType(String throwType){
+			throwTypes.add(throwType);
+			return this;
+		}
+		
+		/**
 		 * @param lines The actual lines of code in the method
 		 * @return this, to continue building
 		 */
@@ -196,7 +221,7 @@ public class JavaMethod{
 		public JavaMethod build(){
 			checkForErrors();
 			
-			return new JavaMethod(annotations, visibility, returnType, name, parameters, lines);
+			return new JavaMethod(annotations, visibility, returnType, name, parameters, throwTypes, lines);
 		}
 	}
 	
@@ -210,6 +235,8 @@ public class JavaMethod{
 	private final String name;
 	/** The parameters used in the method - pairs of type, then name */
 	private final List<Pair<String, String>> parameters;
+	/** The types that can be thrown by the method */
+	private final List<String> throwTypes;
 	/** The actual lines of code in the method */
 	private final List<String> lines;
 	
@@ -221,15 +248,17 @@ public class JavaMethod{
 	 * @param returnType The return type of the method
 	 * @param name The name of the method
 	 * @param parameters The parameters used in the method - pairs of type, then name
+	 * @param throwTypes The types that can be thrown by the method
 	 * @param lines The actual lines of code in the method
 	 */
 	private JavaMethod(List<JavaAnnotation> annotations, Visibility visibility, String returnType, String name,
-	                   List<Pair<String, String>> parameters, List<String> lines){
+	                   List<Pair<String, String>> parameters, List<String> throwTypes, List<String> lines){
 		this.annotations = annotations;
 		this.visibility = visibility;
 		this.returnType = returnType;
 		this.name = name;
 		this.parameters = parameters;
+		this.throwTypes = throwTypes;
 		this.lines = lines;
 	}
 	
@@ -276,6 +305,13 @@ public class JavaMethod{
 	}
 	
 	/**
+	 * @return The types that can be thrown by the method
+	 */
+	public List<String> getThrowTypes(){
+		return throwTypes;
+	}
+	
+	/**
 	 * @return The actual lines of code in the method
 	 */
 	public List<String> getLines(){
@@ -318,8 +354,21 @@ public class JavaMethod{
 			declaration.setLength(declaration.length()-2);
 		}
 		
-		// End of declaration
-		declaration.append("){");
+		// If we have throw types, add them to the end of the declaration
+		if(ListUtil.isNotBlank(throwTypes)){
+			declaration.append(") throws ");
+			for(String throwType: throwTypes){
+				declaration.append(throwType).append(", ");
+			}
+			// Remove the final comma and space
+			declaration.delete(declaration.length() - 2, declaration.length());
+			// Add the opening brace
+			declaration.append('{');
+		}else{
+			// If no throw types, just end the declaration
+			declaration.append("){");
+		}
+		// Add the declaration to the content
 		content.add(declaration.toString());
 		
 		// Add the lines to the method

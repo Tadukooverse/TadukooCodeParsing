@@ -35,6 +35,11 @@ public class JavaMethodTest{
 	}
 	
 	@Test
+	public void testDefaultThrowTypes(){
+		assertTrue(method.getThrowTypes().isEmpty());
+	}
+	
+	@Test
 	public void testDefaultLines(){
 		assertTrue(method.getLines().isEmpty());
 	}
@@ -100,6 +105,25 @@ public class JavaMethodTest{
 		Pair<String, String> parameter = parameters.get(0);
 		assertEquals("String", parameter.getLeft());
 		assertEquals("someText", parameter.getRight());
+	}
+	
+	@Test
+	public void testSetThrowTypes(){
+		List<String> throwTypes = ListUtil.createList("Throwable", "Exception");
+		method = JavaMethod.builder()
+				.returnType("int").throwTypes(throwTypes)
+				.build();
+		assertEquals(throwTypes, method.getThrowTypes());
+	}
+	
+	@Test
+	public void testSetThrowType(){
+		method = JavaMethod.builder()
+				.returnType("int").throwType("Throwable")
+				.build();
+		List<String> throwTypes = method.getThrowTypes();
+		assertEquals(1, throwTypes.size());
+		assertEquals("Throwable", throwTypes.get(0));
 	}
 	
 	@Test
@@ -188,6 +212,24 @@ public class JavaMethodTest{
 	}
 	
 	@Test
+	public void testToStringWithSingleThrowType(){
+		method = JavaMethod.builder().returnType("int").throwType("Throwable").build();
+		String javaString = """
+				public int() throws Throwable{
+				}""";
+		assertEquals(javaString, method.toString());
+	}
+	
+	@Test
+	public void testToStringWithThrowTypes(){
+		method = JavaMethod.builder().returnType("int").throwType("Throwable").throwType("Exception").build();
+		String javaString = """
+				public int() throws Throwable, Exception{
+				}""";
+		assertEquals(javaString, method.toString());
+	}
+	
+	@Test
 	public void testToStringWithLines(){
 		method = JavaMethod.builder().returnType("int").line("doSomething();").line("return 42;").build();
 		String javaString = """
@@ -205,11 +247,12 @@ public class JavaMethodTest{
 		method = JavaMethod.builder().returnType("int")
 				.annotation(test).annotation(derp).name("someMethod")
 				.parameter("String", "text").parameter("int", "something")
+				.throwType("Throwable").throwType("Exception")
 				.line("doSomething();").line("return 42;").build();
 		String javaString = """
 				@Test
 				@Derp
-				public int someMethod(String text, int something){
+				public int someMethod(String text, int something) throws Throwable, Exception{
 					doSomething();
 					return 42;
 				}""";
