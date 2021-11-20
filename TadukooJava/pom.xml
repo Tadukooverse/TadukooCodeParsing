@@ -6,7 +6,7 @@
 	<parent>
 		<artifactId>TadukooCodeParsing</artifactId>
 		<groupId>com.github.tadukoo.parsing.code</groupId>
-		<version>0.3.2-Alpha-SNAPSHOT</version>
+		<version>0.3.2-Alpha</version>
 	</parent>
 	<artifactId>TadukooJava</artifactId>
 	<dependencies>
