@@ -13,12 +13,12 @@
 	</parent>
 	<groupId>com.github.tadukoo.parsing.code</groupId>
 	<artifactId>TadukooCodeParsing</artifactId>
-	<version>0.3.2-Alpha</version>
+	<version>0.3.3-Alpha-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<description>Various libraries for parsing code</description>
 	<properties>
 		<!-- Info -->
 		<shortName>TadukooCodeParsing</shortName>
-		<tadukoo.parsing.version>0.3.2-Alpha</tadukoo.parsing.version>
+		<tadukoo.parsing.version>0.3.3-Alpha-SNAPSHOT</tadukoo.parsing.version>
 	</properties>
 </project>
