@@ -46,6 +46,11 @@ public class JavaClassTest{
 	}
 	
 	@Test
+	public void testDefaultIsStatic(){
+		assertFalse(clazz.isStatic());
+	}
+	
+	@Test
 	public void testDefaultSuperClassName(){
 		assertNull(clazz.getSuperClassName());
 	}
@@ -157,6 +162,26 @@ public class JavaClassTest{
 				.visibility(Visibility.PRIVATE)
 				.build();
 		assertEquals(Visibility.PRIVATE, clazz.getVisibility());
+	}
+	
+	@Test
+	public void testSetIsStatic(){
+		clazz = JavaClass.builder()
+				.innerClass()
+				.className("AClassName")
+				.isStatic(true)
+				.build();
+		assertTrue(clazz.isStatic());
+	}
+	
+	@Test
+	public void testSetIsStaticNoParam(){
+		clazz = JavaClass.builder()
+				.innerClass()
+				.className("AClassName")
+				.isStatic()
+				.build();
+		assertTrue(clazz.isStatic());
 	}
 	
 	@Test
@@ -286,12 +311,26 @@ public class JavaClassTest{
 	}
 	
 	@Test
+	public void testOuterClassCantBeStatic(){
+		try{
+			clazz = JavaClass.builder()
+					.isStatic()
+					.packageName("some.package").className("AClassName")
+					.build();
+			fail();
+		}catch(IllegalArgumentException e){
+			assertEquals("Only inner classes can be static!", e.getMessage());
+		}
+	}
+	
+	@Test
 	public void testAllOuterClassErrors(){
 		try{
 			JavaClass inner = JavaClass.builder()
 					.packageName("some.package").className("AClassName")
 					.build();
 			clazz = JavaClass.builder()
+					.isStatic()
 					.innerClass(inner)
 					.build();
 			fail();
@@ -299,7 +338,8 @@ public class JavaClassTest{
 			assertEquals("""
 					Must specify className!
 					Inner class 'AClassName' is not an inner class!
-					Must specify packageName when not making an inner class!""", e.getMessage());
+					Must specify packageName when not making an inner class!
+					Only inner classes can be static!""", e.getMessage());
 		}
 	}
 	
@@ -618,11 +658,26 @@ public class JavaClassTest{
 	}
 	
 	@Test
+	public void testToStringStaticInnerClass(){
+		clazz = JavaClass.builder()
+				.innerClass()
+				.isStatic()
+				.className("AClassName")
+				.build();
+		assertEquals("""
+				public static class AClassName{
+				\t
+				}
+				""", clazz.toString());
+	}
+	
+	@Test
 	public void testToStringInnerClassWithEverything(){
 		clazz = JavaClass.builder()
 				.innerClass()
 				.annotation(JavaAnnotation.builder().name("Test").build())
 				.annotation(JavaAnnotation.builder().name("Derp").build())
+				.isStatic()
 				.className("AClassName").superClassName("AnotherClassName")
 				.innerClass(JavaClass.builder().innerClass().className("BClassName").build())
 				.innerClass(JavaClass.builder().innerClass().className("CClassName").build())
@@ -635,7 +690,7 @@ public class JavaClassTest{
 		String javaString = """
 				@Test
 				@Derp
-				public class AClassName extends AnotherClassName{
+				public static class AClassName extends AnotherClassName{
 				\t
 					public class BClassName{
 					\t

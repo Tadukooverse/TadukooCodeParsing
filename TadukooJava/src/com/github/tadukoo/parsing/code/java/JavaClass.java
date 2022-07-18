@@ -56,6 +56,11 @@ public class JavaClass{
 	 *         <td>{@link Visibility#PUBLIC}</td>
 	 *     </tr>
 	 *     <tr>
+	 *         <td>isStatic</td>
+	 *         <td>Whether the class is static or not</td>
+	 *         <td>false</td>
+	 *     </tr>
+	 *     <tr>
 	 *         <td>className</td>
 	 *         <td>The name of the class</td>
 	 *         <td>Required</td>
@@ -99,6 +104,8 @@ public class JavaClass{
 		private List<JavaAnnotation> annotations = new ArrayList<>();
 		/** The {@link Visibility} of the class */
 		private Visibility visibility = Visibility.PUBLIC;
+		/** Whether the class is static or not */
+		private boolean isStatic = false;
 		/** The name of the class */
 		private String className = null;
 		/** The name of the class this one extends (may be null) */
@@ -201,6 +208,25 @@ public class JavaClass{
 		 */
 		public JavaClassBuilder visibility(Visibility visibility){
 			this.visibility = visibility;
+			return this;
+		}
+		
+		/**
+		 * @param isStatic Whether the class is static or not
+		 * @return this, to continue building
+		 */
+		public JavaClassBuilder isStatic(boolean isStatic){
+			this.isStatic = isStatic;
+			return this;
+		}
+		
+		/**
+		 * Sets isStatic to true, defining the class as a static class
+		 *
+		 * @return this, to continue building
+		 */
+		public JavaClassBuilder isStatic(){
+			this.isStatic = true;
 			return this;
 		}
 		
@@ -315,6 +341,10 @@ public class JavaClass{
 				if(StringUtil.isBlank(packageName)){
 					errors.add("Must specify packageName when not making an inner class!");
 				}
+				
+				if(isStatic){
+					errors.add("Only inner classes can be static!");
+				}
 			}
 			
 			if(!errors.isEmpty()){
@@ -334,7 +364,7 @@ public class JavaClass{
 			
 			// Actually build the Java Class
 			return new JavaClass(isInnerClass, packageName, imports, staticImports, annotations,
-					visibility, className, superClassName, innerClasses, fields, methods);
+					visibility, isStatic, className, superClassName, innerClasses, fields, methods);
 		}
 	}
 	
@@ -350,6 +380,8 @@ public class JavaClass{
 	private final List<JavaAnnotation> annotations;
 	/** The {@link Visibility} of the class */
 	private final Visibility visibility;
+	/** Whether this is a static class or not */
+	private final boolean isStatic;
 	/** The name of the class */
 	private final String className;
 	/** The name of the class this one extends (may be null) */
@@ -370,6 +402,7 @@ public class JavaClass{
 	 * @param staticImports The classes imported statically by the class
 	 * @param annotations The {@link JavaAnnotation annotations} on the class
 	 * @param visibility The {@link Visibility} of the class
+	 * @param isStatic Whether this is a static class or not
 	 * @param className The name of the class
 	 * @param superClassName The name of the class this one extends (may be null)
 	 * @param innerClasses Inner {@link JavaClass classes} inside the class
@@ -378,7 +411,7 @@ public class JavaClass{
 	 */
 	private JavaClass(boolean isInnerClass, String packageName, List<String> imports, List<String> staticImports,
 	                  List<JavaAnnotation> annotations,
-	                  Visibility visibility, String className, String superClassName,
+	                  Visibility visibility, boolean isStatic, String className, String superClassName,
 	                  List<JavaClass> innerClasses, List<JavaField> fields, List<JavaMethod> methods){
 		this.isInnerClass = isInnerClass;
 		this.packageName = packageName;
@@ -386,6 +419,7 @@ public class JavaClass{
 		this.staticImports = staticImports;
 		this.annotations = annotations;
 		this.visibility = visibility;
+		this.isStatic = isStatic;
 		this.className = className;
 		this.superClassName = superClassName;
 		this.innerClasses = innerClasses;
@@ -440,6 +474,13 @@ public class JavaClass{
 	 */
 	public Visibility getVisibility(){
 		return visibility;
+	}
+	
+	/**
+	 * @return Whether this class is static or not
+	 */
+	public boolean isStatic(){
+		return isStatic;
 	}
 	
 	/**
@@ -521,7 +562,7 @@ public class JavaClass{
 		}
 		
 		// Class Declaration
-		content.add(visibility.getText() + " class " + className +
+		content.add(visibility.getText() + (isStatic?" static":"") + " class " + className +
 				(StringUtil.isNotBlank(superClassName)?" extends " + superClassName:"") + "{");
 		
 		// Newline at start of class
