@@ -26,6 +26,11 @@ public class JavaClass{
 	 *         <th>Default or Required</th>
 	 *     </tr>
 	 *     <tr>
+	 *         <td>isInnerClass</td>
+	 *         <td>Whether the class is an inner class or not</td>
+	 *         <td>Defaults to false</td>
+	 *     </tr>
+	 *     <tr>
 	 *         <td>packageName</td>
 	 *         <td>The name of the package the class is in</td>
 	 *         <td>Required</td>
@@ -61,6 +66,11 @@ public class JavaClass{
 	 *         <td>null</td>
 	 *     </tr>
 	 *     <tr>
+	 *         <td>innerClasses</td>
+	 *         <td>Inner {@link JavaClass classes} inside the class</td>
+	 *         <td>An empty list</td>
+	 *     </tr>
+	 *     <tr>
 	 *         <td>fields</td>
 	 *         <td>The {@link JavaField fields} on the class</td>
 	 *         <td>An empty list</td>
@@ -77,6 +87,8 @@ public class JavaClass{
 	 * @since Alpha v.0.2
 	 */
 	public static class JavaClassBuilder{
+		/** Whether the class is an inner class or not */
+		private boolean isInnerClass = false;
 		/** The name of the package the class is in */
 		private String packageName = null;
 		/** The classes imported by the class */
@@ -91,6 +103,8 @@ public class JavaClass{
 		private String className = null;
 		/** The name of the class this one extends (may be null) */
 		private String superClassName = null;
+		/** Inner {@link JavaClass classes} inside the class */
+		private List<JavaClass> innerClasses = new ArrayList<>();
 		/** The {@link JavaField fields} on the class */
 		private List<JavaField> fields = new ArrayList<>();
 		/** The {@link JavaMethod methods} in the class */
@@ -98,6 +112,25 @@ public class JavaClass{
 		
 		// Can't create outside of JavaClass
 		private JavaClassBuilder(){ }
+		
+		/**
+		 * @param isInnerClass Whether the class is an inner class or not
+		 * @return this, to continue building
+		 */
+		public JavaClassBuilder isInnerClass(boolean isInnerClass){
+			this.isInnerClass = isInnerClass;
+			return this;
+		}
+		
+		/**
+		 * Set the class as an inner class
+		 *
+		 * @return this, to continue building
+		 */
+		public JavaClassBuilder innerClass(){
+			this.isInnerClass = true;
+			return this;
+		}
 		
 		/**
 		 * @param packageName The name of the package the class is in
@@ -190,6 +223,24 @@ public class JavaClass{
 		}
 		
 		/**
+		 * @param innerClasses Inner {@link JavaClass classes} inside the class
+		 * @return this, to continue building
+		 */
+		public JavaClassBuilder innerClasses(List<JavaClass> innerClasses){
+			this.innerClasses = innerClasses;
+			return this;
+		}
+		
+		/**
+		 * @param innerClass An inner {@link JavaClass class} inside the class to be added to the list
+		 * @return this, to continue building
+		 */
+		public JavaClassBuilder innerClass(JavaClass innerClass){
+			this.innerClasses.add(innerClass);
+			return this;
+		}
+		
+		/**
 		 * @param fields The {@link JavaField fields} on the class
 		 * @return this, to continue building
 		 */
@@ -233,12 +284,37 @@ public class JavaClass{
 		private void checkForErrors(){
 			List<String> errors = new ArrayList<>();
 			
-			if(StringUtil.isBlank(packageName)){
-				errors.add("Must specify packageName!");
-			}
-			
+			// Generic problems
 			if(StringUtil.isBlank(className)){
 				errors.add("Must specify className!");
+			}
+			
+			if(ListUtil.isNotBlank(innerClasses)){
+				for(JavaClass innerClass: innerClasses){
+					if(!innerClass.isInnerClass()){
+						errors.add("Inner class '" + innerClass.getClassName() + "' is not an inner class!");
+					}
+				}
+			}
+			
+			// Inner class problems
+			if(isInnerClass){
+				if(StringUtil.isNotBlank(packageName)){
+					errors.add("Not allowed to have packageName for an inner class!");
+				}
+				
+				if(ListUtil.isNotBlank(imports)){
+					errors.add("Not allowed to have imports for an inner class!");
+				}
+				
+				if(ListUtil.isNotBlank(staticImports)){
+					errors.add("Not allowed to have static imports for an inner class!");
+				}
+			}else{
+				// Regular class problems
+				if(StringUtil.isBlank(packageName)){
+					errors.add("Must specify packageName when not making an inner class!");
+				}
 			}
 			
 			if(!errors.isEmpty()){
@@ -257,11 +333,13 @@ public class JavaClass{
 			checkForErrors();
 			
 			// Actually build the Java Class
-			return new JavaClass(packageName, imports, staticImports, annotations,
-					visibility, className, superClassName, fields, methods);
+			return new JavaClass(isInnerClass, packageName, imports, staticImports, annotations,
+					visibility, className, superClassName, innerClasses, fields, methods);
 		}
 	}
 	
+	/** Whether this is an inner class or not */
+	private final boolean isInnerClass;
 	/** The name of the package the class is in */
 	private final String packageName;
 	/** The classes imported by the class */
@@ -276,6 +354,8 @@ public class JavaClass{
 	private final String className;
 	/** The name of the class this one extends (may be null) */
 	private final String superClassName;
+	/** Inner {@link JavaClass classes} inside the class */
+	private final List<JavaClass> innerClasses;
 	/** The {@link JavaField fields} on the class */
 	private final List<JavaField> fields;
 	/** The {@link JavaMethod methods} in the class */
@@ -284,6 +364,7 @@ public class JavaClass{
 	/**
 	 * Constructs a new Java Class with the given parameters
 	 *
+	 * @param isInnerClass Whether this is an inner class or not
 	 * @param packageName The name of the package the class is in
 	 * @param imports The classes imported by the class
 	 * @param staticImports The classes imported statically by the class
@@ -291,13 +372,15 @@ public class JavaClass{
 	 * @param visibility The {@link Visibility} of the class
 	 * @param className The name of the class
 	 * @param superClassName The name of the class this one extends (may be null)
+	 * @param innerClasses Inner {@link JavaClass classes} inside the class
 	 * @param fields The {@link JavaField fields} on the class
 	 * @param methods The {@link JavaMethod methods} in the class
 	 */
-	private JavaClass(String packageName, List<String> imports, List<String> staticImports,
+	private JavaClass(boolean isInnerClass, String packageName, List<String> imports, List<String> staticImports,
 	                  List<JavaAnnotation> annotations,
 	                  Visibility visibility, String className, String superClassName,
-	                  List<JavaField> fields, List<JavaMethod> methods){
+	                  List<JavaClass> innerClasses, List<JavaField> fields, List<JavaMethod> methods){
+		this.isInnerClass = isInnerClass;
 		this.packageName = packageName;
 		this.imports = imports;
 		this.staticImports = staticImports;
@@ -305,6 +388,7 @@ public class JavaClass{
 		this.visibility = visibility;
 		this.className = className;
 		this.superClassName = superClassName;
+		this.innerClasses = innerClasses;
 		this.fields = fields;
 		this.methods = methods;
 	}
@@ -314,6 +398,13 @@ public class JavaClass{
 	 */
 	public static JavaClassBuilder builder(){
 		return new JavaClassBuilder();
+	}
+	
+	/**
+	 * @return Whether this is an inner class or not
+	 */
+	public boolean isInnerClass(){
+		return isInnerClass;
 	}
 	
 	/**
@@ -366,6 +457,13 @@ public class JavaClass{
 	}
 	
 	/**
+	 * @return Inner {@link JavaClass classes} inside this class
+	 */
+	public List<JavaClass> getInnerClasses(){
+		return innerClasses;
+	}
+	
+	/**
 	 * @return The {@link JavaField fields} on the class
 	 */
 	public List<JavaField> getFields(){
@@ -388,7 +486,9 @@ public class JavaClass{
 		List<String> content = new ArrayList<>();
 		
 		// Package Declaration
-		content.add("package " + packageName + ";");
+		if(!isInnerClass){
+			content.add("package " + packageName + ";");
+		}
 		
 		// Import Statements
 		if(ListUtil.isNotBlank(imports)){
@@ -409,7 +509,9 @@ public class JavaClass{
 		}
 		
 		// Newline between package declaration/imports + annotations/class declaration
-		content.add("");
+		if(!isInnerClass){
+			content.add("");
+		}
 		
 		// Annotations
 		if(ListUtil.isNotBlank(annotations)){
@@ -424,6 +526,13 @@ public class JavaClass{
 		
 		// Newline at start of class
 		content.add("\t");
+		
+		// Inner classes of the class
+		if(ListUtil.isNotBlank(innerClasses)){
+			for(JavaClass clazz: innerClasses){
+				content.add(StringUtil.indentAllLines(clazz.toString()));
+			}
+		}
 		
 		// Fields on the class
 		if(ListUtil.isNotBlank(fields)){

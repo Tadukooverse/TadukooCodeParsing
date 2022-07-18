@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -15,6 +16,11 @@ public class JavaClassTest{
 	private JavaClass clazz = JavaClass.builder()
 			.packageName("some.package").className("AClassName")
 			.build();
+	
+	@Test
+	public void testDefaultIsInnerClass(){
+		assertFalse(clazz.isInnerClass());
+	}
 	
 	@Test
 	public void testDefaultImports(){
@@ -48,6 +54,24 @@ public class JavaClassTest{
 	public void testDefaultFields(){
 		assertNotNull(clazz.getFields());
 		assertTrue(clazz.getFields().isEmpty());
+	}
+	
+	@Test
+	public void testSetIsInnerClass(){
+		clazz = JavaClass.builder()
+				.className("AClassName")
+				.isInnerClass(true)
+				.build();
+		assertTrue(clazz.isInnerClass());
+	}
+	
+	@Test
+	public void testSetInnerClass(){
+		clazz = JavaClass.builder()
+				.className("AClassName")
+				.innerClass()
+				.build();
+		assertTrue(clazz.isInnerClass());
 	}
 	
 	@Test
@@ -145,6 +169,29 @@ public class JavaClassTest{
 	}
 	
 	@Test
+	public void testSetInnerClasses(){
+		List<JavaClass> classes = ListUtil.createList(JavaClass.builder().innerClass().className("AClass").build(),
+				JavaClass.builder().innerClass().className("BClass").build());
+		clazz = JavaClass.builder()
+				.packageName("some.package").className("CClassName")
+				.innerClasses(classes)
+				.build();
+		assertEquals(classes, clazz.getInnerClasses());
+	}
+	
+	@Test
+	public void testSet1InnerClass(){
+		JavaClass class2 = JavaClass.builder().innerClass().className("AClass").build();
+		clazz = JavaClass.builder()
+				.packageName("some.package").className("BClassName")
+				.innerClass(class2)
+				.build();
+		List<JavaClass> innerClasses = clazz.getInnerClasses();
+		assertEquals(1, innerClasses.size());
+		assertEquals(class2, innerClasses.get(0));
+	}
+	
+	@Test
 	public void testSetFields(){
 		List<JavaField> fields = ListUtil.createList(JavaField.builder().type("int").name("test").build(),
 				JavaField.builder().type("String").name("derp").build());
@@ -206,7 +253,7 @@ public class JavaClassTest{
 					.build();
 			fail();
 		}catch(IllegalArgumentException e){
-			assertEquals("Must specify packageName!", e.getMessage());
+			assertEquals("Must specify packageName when not making an inner class!", e.getMessage());
 		}
 	}
 	
@@ -223,13 +270,131 @@ public class JavaClassTest{
 	}
 	
 	@Test
-	public void testNullPackageNameAndClassName(){
+	public void testInnerClassNotInnerClass(){
 		try{
+			JavaClass inner = JavaClass.builder()
+					.packageName("some.package").className("AClassName")
+					.build();
 			clazz = JavaClass.builder()
+					.packageName("some.package").className("BClassName")
+					.innerClass(inner)
 					.build();
 			fail();
 		}catch(IllegalArgumentException e){
-			assertEquals("Must specify packageName!\nMust specify className!", e.getMessage());
+			assertEquals("Inner class 'AClassName' is not an inner class!", e.getMessage());
+		}
+	}
+	
+	@Test
+	public void testAllOuterClassErrors(){
+		try{
+			JavaClass inner = JavaClass.builder()
+					.packageName("some.package").className("AClassName")
+					.build();
+			clazz = JavaClass.builder()
+					.innerClass(inner)
+					.build();
+			fail();
+		}catch(IllegalArgumentException e){
+			assertEquals("""
+					Must specify className!
+					Inner class 'AClassName' is not an inner class!
+					Must specify packageName when not making an inner class!""", e.getMessage());
+		}
+	}
+	
+	@Test
+	public void testNullClassNameInnerClass(){
+		try{
+			clazz = JavaClass.builder()
+					.innerClass()
+					.build();
+			fail();
+		}catch(IllegalArgumentException e){
+			assertEquals("Must specify className!", e.getMessage());
+		}
+	}
+	
+	@Test
+	public void testInnerClassNotInnerClassInInnerClass(){
+		try{
+			JavaClass inner = JavaClass.builder()
+					.packageName("some.package").className("AClassName")
+					.build();
+			clazz = JavaClass.builder()
+					.innerClass()
+					.className("BClassName")
+					.innerClass(inner)
+					.build();
+			fail();
+		}catch(IllegalArgumentException e){
+			assertEquals("Inner class 'AClassName' is not an inner class!", e.getMessage());
+		}
+	}
+	
+	@Test
+	public void testSetPackageNameInnerClass(){
+		try{
+			clazz = JavaClass.builder()
+					.innerClass()
+					.packageName("some.package")
+					.className("AClassName")
+					.build();
+			fail();
+		}catch(IllegalArgumentException e){
+			assertEquals("Not allowed to have packageName for an inner class!", e.getMessage());
+		}
+	}
+	
+	@Test
+	public void testSetImportInnerClass(){
+		try{
+			clazz = JavaClass.builder()
+					.innerClass()
+					.className("AClassName")
+					.singleImport("an.import")
+					.build();
+			fail();
+		}catch(IllegalArgumentException e){
+			assertEquals("Not allowed to have imports for an inner class!", e.getMessage());
+		}
+	}
+	
+	@Test
+	public void testSetStaticImportInnerClass(){
+		try{
+			clazz = JavaClass.builder()
+					.innerClass()
+					.className("AClassName")
+					.staticImport("an.other.import")
+					.build();
+			fail();
+		}catch(IllegalArgumentException e){
+			assertEquals("Not allowed to have static imports for an inner class!", e.getMessage());
+		}
+	}
+	
+	@Test
+	public void testAllInnerClassBuilderErrors(){
+		try{
+			JavaClass inner = JavaClass.builder()
+					.packageName("some.package").className("AClassName")
+					.build();
+			clazz = JavaClass.builder()
+					.innerClass()
+					.packageName("some.package")
+					.innerClass(inner)
+					.singleImport("an.import")
+					.staticImport("an.other.import")
+					.build();
+			fail();
+		}catch(IllegalArgumentException e){
+			assertEquals("""
+					Must specify className!
+					Inner class 'AClassName' is not an inner class!
+					Not allowed to have packageName for an inner class!
+					Not allowed to have imports for an inner class!
+					Not allowed to have static imports for an inner class!""", e.getMessage());
 		}
 	}
 	
@@ -320,6 +485,31 @@ public class JavaClassTest{
 	}
 	
 	@Test
+	public void testToStringWithInnerClasses(){
+		clazz = JavaClass.builder()
+				.packageName("some.package").className("AClassName")
+				.innerClass(JavaClass.builder().innerClass().className("BClassName").build())
+				.innerClass(JavaClass.builder().innerClass().className("CClassName").build())
+				.build();
+		String javaString = """
+				package some.package;
+				
+				public class AClassName{
+				\t
+					public class BClassName{
+					\t
+					}
+				\t
+					public class CClassName{
+					\t
+					}
+				\t
+				}
+				""";
+		assertEquals(javaString, clazz.toString());
+	}
+	
+	@Test
 	public void testToStringWithFields(){
 		clazz = JavaClass.builder()
 				.packageName("some.package").className("AClassName")
@@ -371,6 +561,8 @@ public class JavaClassTest{
 				.annotation(JavaAnnotation.builder().name("Test").build())
 				.annotation(JavaAnnotation.builder().name("Derp").build())
 				.className("AClassName").superClassName("AnotherClassName")
+				.innerClass(JavaClass.builder().innerClass().className("BClassName").build())
+				.innerClass(JavaClass.builder().innerClass().className("CClassName").build())
 				.field(JavaField.builder().type("int").name("test").build())
 				.field(JavaField.builder().type("String").name("derp").build())
 				.method(JavaMethod.builder().returnType("AClassName").build())
@@ -389,6 +581,69 @@ public class JavaClassTest{
 				@Test
 				@Derp
 				public class AClassName extends AnotherClassName{
+				\t
+					public class BClassName{
+					\t
+					}
+				\t
+					public class CClassName{
+					\t
+					}
+				\t
+					private int test;
+					private String derp;
+				\t
+					public AClassName(){
+					}
+				\t
+					public String getSomething(int test){
+						return doSomething();
+					}
+				}
+				""";
+		assertEquals(javaString, clazz.toString());
+	}
+	
+	@Test
+	public void testToStringInnerClass(){
+		clazz = JavaClass.builder()
+				.innerClass()
+				.className("AClassName")
+				.build();
+		assertEquals("""
+				public class AClassName{
+				\t
+				}
+				""", clazz.toString());
+	}
+	
+	@Test
+	public void testToStringInnerClassWithEverything(){
+		clazz = JavaClass.builder()
+				.innerClass()
+				.annotation(JavaAnnotation.builder().name("Test").build())
+				.annotation(JavaAnnotation.builder().name("Derp").build())
+				.className("AClassName").superClassName("AnotherClassName")
+				.innerClass(JavaClass.builder().innerClass().className("BClassName").build())
+				.innerClass(JavaClass.builder().innerClass().className("CClassName").build())
+				.field(JavaField.builder().type("int").name("test").build())
+				.field(JavaField.builder().type("String").name("derp").build())
+				.method(JavaMethod.builder().returnType("AClassName").build())
+				.method(JavaMethod.builder().returnType("String").name("getSomething")
+						.parameter("int", "test").line("return doSomething();").build())
+				.build();
+		String javaString = """
+				@Test
+				@Derp
+				public class AClassName extends AnotherClassName{
+				\t
+					public class BClassName{
+					\t
+					}
+				\t
+					public class CClassName{
+					\t
+					}
 				\t
 					private int test;
 					private String derp;
