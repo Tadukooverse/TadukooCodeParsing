@@ -35,6 +35,11 @@ public class JavaClassTest{
 	}
 	
 	@Test
+	public void testDefaultJavadoc(){
+		assertNull(clazz.getJavadoc());
+	}
+	
+	@Test
 	public void testDefaultAnnotations(){
 		assertNotNull(clazz.getAnnotations());
 		assertTrue(clazz.getAnnotations().isEmpty());
@@ -129,6 +134,16 @@ public class JavaClassTest{
 		List<String> staticImports = clazz.getStaticImports();
 		assertEquals(1, staticImports.size());
 		assertEquals("com.github.tadukoo.*", staticImports.get(0));
+	}
+	
+	@Test
+	public void testSetJavadoc(){
+		Javadoc doc = Javadoc.builder().build();
+		clazz = JavaClass.builder()
+				.packageName("some.package").className("AClassName")
+				.javadoc(doc)
+				.build();
+		assertEquals(doc, clazz.getJavadoc());
 	}
 	
 	@Test
@@ -466,6 +481,24 @@ public class JavaClassTest{
 	}
 	
 	@Test
+	public void testToStringWithJavadoc(){
+		clazz = JavaClass.builder()
+				.packageName("some.package").className("AClassName")
+				.javadoc(Javadoc.builder().build())
+				.build();
+		String javaString = """
+				package some.package;
+				
+				/**
+				 */
+				public class AClassName{
+				\t
+				}
+				""";
+		assertEquals(javaString, clazz.toString());
+	}
+	
+	@Test
 	public void testToStringWithAnnotations(){
 		JavaAnnotation test = JavaAnnotation.builder().name("Test").build();
 		JavaAnnotation derp = JavaAnnotation.builder().name("Derp").build();
@@ -598,6 +631,7 @@ public class JavaClassTest{
 				.packageName("some.package")
 				.imports(ListUtil.createList("com.example.*", "com.github.tadukoo.*"))
 				.staticImports(ListUtil.createList("com.example.Test", "com.github.tadukoo.test.*"))
+				.javadoc(Javadoc.builder().build())
 				.annotation(JavaAnnotation.builder().name("Test").build())
 				.annotation(JavaAnnotation.builder().name("Derp").build())
 				.className("AClassName").superClassName("AnotherClassName")
@@ -618,6 +652,8 @@ public class JavaClassTest{
 				import static com.example.Test;
 				import static com.github.tadukoo.test.*;
 				
+				/**
+				 */
 				@Test
 				@Derp
 				public class AClassName extends AnotherClassName{
@@ -675,6 +711,7 @@ public class JavaClassTest{
 	public void testToStringInnerClassWithEverything(){
 		clazz = JavaClass.builder()
 				.innerClass()
+				.javadoc(Javadoc.builder().build())
 				.annotation(JavaAnnotation.builder().name("Test").build())
 				.annotation(JavaAnnotation.builder().name("Derp").build())
 				.isStatic()
@@ -688,6 +725,8 @@ public class JavaClassTest{
 						.parameter("int", "test").line("return doSomething();").build())
 				.build();
 		String javaString = """
+				/**
+				 */
 				@Test
 				@Derp
 				public static class AClassName extends AnotherClassName{

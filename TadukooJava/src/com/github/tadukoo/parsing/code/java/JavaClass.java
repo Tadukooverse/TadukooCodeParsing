@@ -10,7 +10,7 @@ import java.util.List;
  * Java Class is used to represent a class in Java.
  *
  * @author Logan Ferree (Tadukoo)
- * @version Alpha v.0.3
+ * @version Alpha v.0.3.3
  * @since Alpha v.0.2
  */
 public class JavaClass{
@@ -44,6 +44,11 @@ public class JavaClass{
 	 *         <td>staticImports</td>
 	 *         <td>The classes imported statically by the class</td>
 	 *         <td>An empty list</td>
+	 *     </tr>
+	 *     <tr>
+	 *         <td>javadoc</td>
+	 *         <td>The {@link Javadoc} for the class</td>
+	 *         <td>Defaults to null</td>
 	 *     </tr>
 	 *     <tr>
 	 *         <td>annotations</td>
@@ -88,7 +93,7 @@ public class JavaClass{
 	 * </table>
 	 *
 	 * @author Logan Ferree (Tadukoo)
-	 * @version Alpha v.0.3
+	 * @version Alpha v.0.3.3
 	 * @since Alpha v.0.2
 	 */
 	public static class JavaClassBuilder{
@@ -100,6 +105,8 @@ public class JavaClass{
 		private List<String> imports = new ArrayList<>();
 		/** The classes imported statically by the class */
 		private List<String> staticImports = new ArrayList<>();
+		/** The {@link Javadoc} for the class */
+		private Javadoc javadoc = null;
 		/** The {@link JavaAnnotation annotations} on the class */
 		private List<JavaAnnotation> annotations = new ArrayList<>();
 		/** The {@link Visibility} of the class */
@@ -181,6 +188,15 @@ public class JavaClass{
 		 */
 		public JavaClassBuilder staticImport(String staticImport){
 			staticImports.add(staticImport);
+			return this;
+		}
+		
+		/**
+		 * @param javadoc The {@link Javadoc} for the class
+		 * @return this, to continue building
+		 */
+		public JavaClassBuilder javadoc(Javadoc javadoc){
+			this.javadoc = javadoc;
 			return this;
 		}
 		
@@ -363,7 +379,7 @@ public class JavaClass{
 			checkForErrors();
 			
 			// Actually build the Java Class
-			return new JavaClass(isInnerClass, packageName, imports, staticImports, annotations,
+			return new JavaClass(isInnerClass, packageName, imports, staticImports, javadoc, annotations,
 					visibility, isStatic, className, superClassName, innerClasses, fields, methods);
 		}
 	}
@@ -376,6 +392,8 @@ public class JavaClass{
 	private final List<String> imports;
 	/** The classes imported statically by the class */
 	private final List<String> staticImports;
+	/** The {@link Javadoc} for the class */
+	private final Javadoc javadoc;
 	/** The {@link JavaAnnotation annotations} on the class */
 	private final List<JavaAnnotation> annotations;
 	/** The {@link Visibility} of the class */
@@ -400,6 +418,7 @@ public class JavaClass{
 	 * @param packageName The name of the package the class is in
 	 * @param imports The classes imported by the class
 	 * @param staticImports The classes imported statically by the class
+	 * @param javadoc The {@link Javadoc} for the class
 	 * @param annotations The {@link JavaAnnotation annotations} on the class
 	 * @param visibility The {@link Visibility} of the class
 	 * @param isStatic Whether this is a static class or not
@@ -410,13 +429,14 @@ public class JavaClass{
 	 * @param methods The {@link JavaMethod methods} in the class
 	 */
 	private JavaClass(boolean isInnerClass, String packageName, List<String> imports, List<String> staticImports,
-	                  List<JavaAnnotation> annotations,
+	                  Javadoc javadoc, List<JavaAnnotation> annotations,
 	                  Visibility visibility, boolean isStatic, String className, String superClassName,
 	                  List<JavaClass> innerClasses, List<JavaField> fields, List<JavaMethod> methods){
 		this.isInnerClass = isInnerClass;
 		this.packageName = packageName;
 		this.imports = imports;
 		this.staticImports = staticImports;
+		this.javadoc = javadoc;
 		this.annotations = annotations;
 		this.visibility = visibility;
 		this.isStatic = isStatic;
@@ -460,6 +480,13 @@ public class JavaClass{
 	 */
 	public List<String> getStaticImports(){
 		return staticImports;
+	}
+	
+	/**
+	 * @return The {@link Javadoc} for the class
+	 */
+	public Javadoc getJavadoc(){
+		return javadoc;
 	}
 	
 	/**
@@ -549,9 +576,14 @@ public class JavaClass{
 			}
 		}
 		
-		// Newline between package declaration/imports + annotations/class declaration
+		// Newline between package declaration/imports + javadoc/annotations/class declaration
 		if(!isInnerClass){
 			content.add("");
+		}
+		
+		// Javadoc
+		if(javadoc != null){
+			content.add(javadoc.toString());
 		}
 		
 		// Annotations

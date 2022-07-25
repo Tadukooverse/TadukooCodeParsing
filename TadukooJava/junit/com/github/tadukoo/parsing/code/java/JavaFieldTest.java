@@ -17,6 +17,11 @@ public class JavaFieldTest{
 			.build();
 	
 	@Test
+	public void testDefaultJavadoc(){
+		assertNull(field.getJavadoc());
+	}
+	
+	@Test
 	public void testDefaultAnnotations(){
 		assertTrue(field.getAnnotations().isEmpty());
 	}
@@ -44,6 +49,16 @@ public class JavaFieldTest{
 	@Test
 	public void testSetName(){
 		assertEquals("test", field.getName());
+	}
+	
+	@Test
+	public void testSetJavadoc(){
+		Javadoc doc = Javadoc.builder().build();
+		field = JavaField.builder()
+				.type("int").name("test")
+				.javadoc(doc)
+				.build();
+		assertEquals(doc, field.getJavadoc());
 	}
 	
 	@Test
@@ -149,6 +164,19 @@ public class JavaFieldTest{
 	}
 	
 	@Test
+	public void testToStringWithJavadoc(){
+		field = JavaField.builder()
+				.type("int").name("test")
+				.javadoc(Javadoc.builder().build())
+				.build();
+		String javaString = """
+				/**
+				 */
+				private int test""";
+		assertEquals(javaString, field.toString());
+	}
+	
+	@Test
 	public void testToStringWithSingleAnnotation(){
 		JavaAnnotation test = JavaAnnotation.builder().name("Test").build();
 		field = JavaField.builder()
@@ -200,12 +228,15 @@ public class JavaFieldTest{
 	public void testToStringWithEverything(){
 		field = JavaField.builder()
 				.type("int").name("test")
+				.javadoc(Javadoc.builder().build())
 				.annotation(JavaAnnotation.builder().name("Test").build())
 				.annotation(JavaAnnotation.builder().name("Derp").build())
 				.isFinal()
 				.value("42")
 				.build();
 		String javaString = """
+				/**
+				 */
 				@Test
 				@Derp
 				private final int test = 42""";

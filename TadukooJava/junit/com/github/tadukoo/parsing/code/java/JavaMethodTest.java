@@ -15,6 +15,11 @@ public class JavaMethodTest{
 	private JavaMethod method = JavaMethod.builder().returnType("int").build();
 	
 	@Test
+	public void testDefaultJavadoc(){
+		assertNull(method.getJavadoc());
+	}
+	
+	@Test
 	public void testDefaultAnnotations(){
 		assertTrue(method.getAnnotations().isEmpty());
 	}
@@ -42,6 +47,16 @@ public class JavaMethodTest{
 	@Test
 	public void testDefaultLines(){
 		assertTrue(method.getLines().isEmpty());
+	}
+	
+	@Test
+	public void testSetJavadoc(){
+		Javadoc javadoc = Javadoc.builder().build();
+		method = JavaMethod.builder()
+				.returnType("int")
+				.javadoc(javadoc)
+				.build();
+		assertEquals(javadoc, method.getJavadoc());
 	}
 	
 	@Test
@@ -160,6 +175,20 @@ public class JavaMethodTest{
 	}
 	
 	@Test
+	public void testToStringWithJavadoc(){
+		method = JavaMethod.builder()
+				.returnType("int")
+				.javadoc(Javadoc.builder().build())
+				.build();
+		String javaString = """
+				/**
+				 */
+				public int(){
+				}""";
+		assertEquals(javaString, method.toString());
+	}
+	
+	@Test
 	public void testToStringWithSingleAnnotation(){
 		JavaAnnotation test = JavaAnnotation.builder().name("Test").build();
 		method = JavaMethod.builder().returnType("int").annotation(test).build();
@@ -245,11 +274,14 @@ public class JavaMethodTest{
 		JavaAnnotation test = JavaAnnotation.builder().name("Test").build();
 		JavaAnnotation derp = JavaAnnotation.builder().name("Derp").build();
 		method = JavaMethod.builder().returnType("int")
+				.javadoc(Javadoc.builder().build())
 				.annotation(test).annotation(derp).name("someMethod")
 				.parameter("String", "text").parameter("int", "something")
 				.throwType("Throwable").throwType("Exception")
 				.line("doSomething();").line("return 42;").build();
 		String javaString = """
+				/**
+				 */
 				@Test
 				@Derp
 				public int someMethod(String text, int something) throws Throwable, Exception{

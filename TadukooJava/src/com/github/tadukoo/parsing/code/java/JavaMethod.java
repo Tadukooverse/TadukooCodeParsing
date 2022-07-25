@@ -11,7 +11,7 @@ import java.util.List;
  * Java Method represents a method in a Java class or interface, etc.
  *
  * @author Logan Ferree (Tadukoo)
- * @version Alpha v.0.3
+ * @version Alpha v.0.3.3
  * @since Alpha v.0.2
  */
 public class JavaMethod{
@@ -25,6 +25,11 @@ public class JavaMethod{
 	 *         <th>Parameter</th>
 	 *         <th>Description</th>
 	 *         <th>Default or Required</th>
+	 *     </tr>
+	 *     <tr>
+	 *         <td>javadoc</td>
+	 *         <td>The {@link Javadoc} on the method</td>
+	 *         <td>null</td>
 	 *     </tr>
 	 *     <tr>
 	 *         <td>annotations</td>
@@ -64,10 +69,12 @@ public class JavaMethod{
 	 * </table>
 	 *
 	 * @author Logan Ferree (Tadukoo)
-	 * @version Alpha v.0.3
+	 * @version Alpha v.0.3.3
 	 * @since Alpha v.0.2
 	 */
 	public static class JavaMethodBuilder{
+		/** The {@link Javadoc} on the method */
+		private Javadoc javadoc = null;
 		/** The {@link JavaAnnotation annotations} on the method */
 		private List<JavaAnnotation> annotations = new ArrayList<>();
 		/** The {@link Visibility} of the method */
@@ -83,8 +90,17 @@ public class JavaMethod{
 		/** The actual lines of code in the method */
 		private List<String> lines = new ArrayList<>();
 		
-		// Can't create outside of JavaMethod
+		/** Can't create outside JavaMethod */
 		private JavaMethodBuilder(){ }
+		
+		/**
+		 * @param javadoc The {@link Javadoc} on the method
+		 * @return this, to continue building
+		 */
+		public JavaMethodBuilder javadoc(Javadoc javadoc){
+			this.javadoc = javadoc;
+			return this;
+		}
 		
 		/**
 		 * @param annotations The {@link JavaAnnotation annotations} on the method
@@ -221,10 +237,12 @@ public class JavaMethod{
 		public JavaMethod build(){
 			checkForErrors();
 			
-			return new JavaMethod(annotations, visibility, returnType, name, parameters, throwTypes, lines);
+			return new JavaMethod(javadoc, annotations, visibility, returnType, name, parameters, throwTypes, lines);
 		}
 	}
 	
+	/** The {@link Javadoc} on the method */
+	private final Javadoc javadoc;
 	/** The {@link JavaAnnotation annotations} on the method */
 	private final List<JavaAnnotation> annotations;
 	/** The {@link Visibility} of the method */
@@ -243,6 +261,7 @@ public class JavaMethod{
 	/**
 	 * Constructs a new Java Method with the given parameters
 	 *
+	 * @param javadoc The {@link Javadoc} on the method
 	 * @param annotations The {@link JavaAnnotation annotations} on the method
 	 * @param visibility The {@link Visibility} of the method
 	 * @param returnType The return type of the method
@@ -251,8 +270,10 @@ public class JavaMethod{
 	 * @param throwTypes The types that can be thrown by the method
 	 * @param lines The actual lines of code in the method
 	 */
-	private JavaMethod(List<JavaAnnotation> annotations, Visibility visibility, String returnType, String name,
-	                   List<Pair<String, String>> parameters, List<String> throwTypes, List<String> lines){
+	private JavaMethod(
+			Javadoc javadoc, List<JavaAnnotation> annotations, Visibility visibility, String returnType, String name,
+			List<Pair<String, String>> parameters, List<String> throwTypes, List<String> lines){
+		this.javadoc = javadoc;
 		this.annotations = annotations;
 		this.visibility = visibility;
 		this.returnType = returnType;
@@ -267,6 +288,13 @@ public class JavaMethod{
 	 */
 	public static JavaMethodBuilder builder(){
 		return new JavaMethodBuilder();
+	}
+	
+	/**
+	 * @return The {@link Javadoc} on the method
+	 */
+	public Javadoc getJavadoc(){
+		return javadoc;
 	}
 	
 	/**
@@ -324,6 +352,11 @@ public class JavaMethod{
 	@Override
 	public String toString(){
 		List<String> content = new ArrayList<>();
+		
+		// Javadoc
+		if(javadoc != null){
+			content.add(javadoc.toString());
+		}
 		
 		// Annotations
 		if(ListUtil.isNotBlank(annotations)){

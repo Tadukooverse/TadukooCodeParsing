@@ -10,7 +10,7 @@ import java.util.List;
  * Java Field represents a field in a {@link JavaClass Java class}
  *
  * @author Logan Ferree (Tadukoo)
- * @version Alpha v.0.3
+ * @version Alpha v.0.3.3
  * @since Alpha v.0.2
  */
 public class JavaField{
@@ -24,6 +24,11 @@ public class JavaField{
 	 *         <th>Parameter</th>
 	 *         <th>Description</th>
 	 *         <th>Default or Required</th>
+	 *     </tr>
+	 *     <tr>
+	 *         <td>javadoc</td>
+	 *         <td>The {@link Javadoc} on the field</td>
+	 *         <td>null</td>
 	 *     </tr>
 	 *     <tr>
 	 *         <td>annotations</td>
@@ -58,10 +63,12 @@ public class JavaField{
 	 * </table>
 	 *
 	 * @author Logan Ferree (Tadukoo)
-	 * @version Alpha v.0.3
+	 * @version Alpha v.0.3.3
 	 * @since Alpha v.0.2
 	 */
 	public static class JavaFieldBuilder{
+		/** The {@link Javadoc} on the field */
+		private Javadoc javadoc = null;
 		/** The {@link JavaAnnotation annotations} on the field */
 		private List<JavaAnnotation> annotations = new ArrayList<>();
 		/** The {@link Visibility} of the field */
@@ -75,8 +82,17 @@ public class JavaField{
 		/** The value assigned to the field */
 		private String value = null;
 		
-		// Can't create outside of JavaField
+		/** Not allowed to create outside JavaField */
 		private JavaFieldBuilder(){ }
+		
+		/**
+		 * @param javadoc The {@link Javadoc} on the field
+		 * @return this, to continue building
+		 */
+		public JavaFieldBuilder javadoc(Javadoc javadoc){
+			this.javadoc = javadoc;
+			return this;
+		}
 		
 		/**
 		 * @param annotations The {@link JavaAnnotation annotations} on the field
@@ -181,10 +197,12 @@ public class JavaField{
 		public JavaField build(){
 			checkForErrors();
 			
-			return new JavaField(annotations, visibility, isFinal, type, name, value);
+			return new JavaField(javadoc, annotations, visibility, isFinal, type, name, value);
 		}
 	}
 	
+	/** The {@link Javadoc} on the field */
+	private final Javadoc javadoc;
 	/** The {@link JavaAnnotation annotations} on the field */
 	private final List<JavaAnnotation> annotations;
 	/** The {@link Visibility} of the field */
@@ -201,6 +219,7 @@ public class JavaField{
 	/**
 	 * Constructs a Java Field with the given parameters
 	 *
+	 * @param javadoc The {@link Javadoc} on the field
 	 * @param annotations The {@link JavaAnnotation annotations} on the field
 	 * @param visibility The {@link Visibility} of the field
 	 * @param isFinal Whether the field is final or not
@@ -209,8 +228,9 @@ public class JavaField{
 	 * @param value The value assigned to the field
 	 */
 	private JavaField(
-			List<JavaAnnotation> annotations, Visibility visibility, boolean isFinal, String type,
-			String name, String value){
+			Javadoc javadoc, List<JavaAnnotation> annotations, Visibility visibility, boolean isFinal,
+			String type, String name, String value){
+		this.javadoc = javadoc;
 		this.annotations = annotations;
 		this.visibility = visibility;
 		this.isFinal = isFinal;
@@ -224,6 +244,13 @@ public class JavaField{
 	 */
 	public static JavaFieldBuilder builder(){
 		return new JavaFieldBuilder();
+	}
+	
+	/**
+	 * @return The {@link Javadoc} on the field
+	 */
+	public Javadoc getJavadoc(){
+		return javadoc;
 	}
 	
 	/**
@@ -269,11 +296,16 @@ public class JavaField{
 	}
 	
 	/**
-	 * @return A string of the form "{visibility.getText()} {type} {name}", with annotations on newlines above
+	 * @return A string of the form "{visibility.getText()} {type} {name}", with javadoc and annotations on newlines above
 	 */
 	@Override
 	public String toString(){
 		List<String> content = new ArrayList<>();
+		
+		// Javadoc
+		if(javadoc != null){
+			content.add(javadoc.toString());
+		}
 		
 		// Annotations
 		if(ListUtil.isNotBlank(annotations)){
