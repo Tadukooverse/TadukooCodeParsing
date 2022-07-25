@@ -402,4 +402,36 @@ public class JavadocTest{
 				 * @param derp no
 				 * @return this, to continue building */""", doc.toString());
 	}
+	
+	/*
+	 * Special toString Cases
+	 */
+	
+	@Test
+	public void testToStringContentAndInfoAnnotations(){
+		doc = Javadoc.builder()
+				.content("test")
+				.author("Me")
+				.build();
+		assertEquals("""
+				/**
+				 * test
+				 *\040
+				 * @author Me
+				 */""", doc.toString());
+	}
+	
+	@Test
+	public void testToStringContentAndCodeAnnotations(){
+		doc = Javadoc.builder()
+				.content("test")
+				.returnVal("this")
+				.build();
+		assertEquals("""
+				/**
+				 * test
+				 *\040
+				 * @return this
+				 */""", doc.toString());
+	}
 }

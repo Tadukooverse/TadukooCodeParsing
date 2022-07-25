@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -27,6 +28,11 @@ public class JavaMethodTest{
 	@Test
 	public void testDefaultVisibility(){
 		assertEquals(Visibility.PUBLIC, method.getVisibility());
+	}
+	
+	@Test
+	public void testDefaultIsStatic(){
+		assertFalse(method.isStatic());
 	}
 	
 	@Test
@@ -81,6 +87,28 @@ public class JavaMethodTest{
 	public void testSetVisibility(){
 		method = JavaMethod.builder().visibility(Visibility.PRIVATE).returnType("String").build();
 		assertEquals(Visibility.PRIVATE, method.getVisibility());
+	}
+	
+	@Test
+	public void testIsStatic(){
+		method = JavaMethod.builder()
+				.isStatic()
+				.returnType("String")
+				.build();
+		assertTrue(method.isStatic());
+	}
+	
+	@Test
+	public void testSetIsStatic(){
+		method = JavaMethod.builder()
+				.isStatic(false).returnType("String")
+				.build();
+		assertFalse(method.isStatic());
+		
+		method = JavaMethod.builder()
+				.isStatic(true).returnType("String")
+				.build();
+		assertTrue(method.isStatic());
 	}
 	
 	@Test
@@ -213,6 +241,17 @@ public class JavaMethodTest{
 	}
 	
 	@Test
+	public void testToStringWithIsStatic(){
+		method = JavaMethod.builder()
+				.returnType("int").isStatic()
+				.build();
+		String javaString = """
+				public static int(){
+				}""";
+		assertEquals(javaString, method.toString());
+	}
+	
+	@Test
 	public void testToStringWithName(){
 		method = JavaMethod.builder().returnType("int").name("someMethod").build();
 		String javaString = """
@@ -276,6 +315,7 @@ public class JavaMethodTest{
 		method = JavaMethod.builder().returnType("int")
 				.javadoc(Javadoc.builder().build())
 				.annotation(test).annotation(derp).name("someMethod")
+				.isStatic()
 				.parameter("String", "text").parameter("int", "something")
 				.throwType("Throwable").throwType("Exception")
 				.line("doSomething();").line("return 42;").build();
@@ -284,7 +324,7 @@ public class JavaMethodTest{
 				 */
 				@Test
 				@Derp
-				public int someMethod(String text, int something) throws Throwable, Exception{
+				public static int someMethod(String text, int something) throws Throwable, Exception{
 					doSomething();
 					return 42;
 				}""";

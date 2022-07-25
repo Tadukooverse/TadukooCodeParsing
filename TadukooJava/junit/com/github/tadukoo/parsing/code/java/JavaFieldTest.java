@@ -32,6 +32,11 @@ public class JavaFieldTest{
 	}
 	
 	@Test
+	public void testDefaultIsStatic(){
+		assertFalse(field.isStatic());
+	}
+	
+	@Test
 	public void testDefaultIsFinal(){
 		assertFalse(field.isFinal());
 	}
@@ -91,6 +96,27 @@ public class JavaFieldTest{
 				.build();
 		
 		assertEquals(Visibility.PUBLIC, field.getVisibility());
+	}
+	
+	@Test
+	public void testSetIsStatic(){
+		field = JavaField.builder()
+				.type("int").name("test").isStatic(false)
+				.build();
+		assertFalse(field.isStatic());
+		
+		field = JavaField.builder()
+				.type("int").name("test").isStatic(true)
+				.build();
+		assertTrue(field.isStatic());
+	}
+	
+	@Test
+	public void testIsStatic(){
+		field = JavaField.builder()
+				.type("int").name("test").isStatic()
+				.build();
+		assertTrue(field.isStatic());
 	}
 	
 	@Test
@@ -205,6 +231,17 @@ public class JavaFieldTest{
 	}
 	
 	@Test
+	public void testToStringWithIsStatic(){
+		field = JavaField.builder()
+				.type("int").name("test")
+				.isStatic()
+				.build();
+		String javaString = """
+				private static int test""";
+		assertEquals(javaString, field.toString());
+	}
+	
+	@Test
 	public void testToStringWithIsFinal(){
 		field = JavaField.builder()
 				.type("int").name("test")
@@ -231,6 +268,7 @@ public class JavaFieldTest{
 				.javadoc(Javadoc.builder().build())
 				.annotation(JavaAnnotation.builder().name("Test").build())
 				.annotation(JavaAnnotation.builder().name("Derp").build())
+				.isStatic()
 				.isFinal()
 				.value("42")
 				.build();
@@ -239,7 +277,7 @@ public class JavaFieldTest{
 				 */
 				@Test
 				@Derp
-				private final int test = 42""";
+				private static final int test = 42""";
 		assertEquals(javaString, field.toString());
 	}
 }

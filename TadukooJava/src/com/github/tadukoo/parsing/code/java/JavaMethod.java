@@ -42,6 +42,11 @@ public class JavaMethod{
 	 *         <td>{@link Visibility#PUBLIC}</td>
 	 *     </tr>
 	 *     <tr>
+	 *         <td>isStatic</td>
+	 *         <td>Whether the method is static or not</td>
+	 *         <td>Defaults to false</td>
+	 *     </tr>
+	 *     <tr>
 	 *         <td>returnType</td>
 	 *         <td>The return type of the method</td>
 	 *         <td>Required</td>
@@ -79,6 +84,8 @@ public class JavaMethod{
 		private List<JavaAnnotation> annotations = new ArrayList<>();
 		/** The {@link Visibility} of the method */
 		private Visibility visibility = Visibility.PUBLIC;
+		/** Whether the method is static or not */
+		private boolean isStatic = false;
 		/** The return type of the method */
 		private String returnType = null;
 		/** The name of the method */
@@ -126,6 +133,25 @@ public class JavaMethod{
 		 */
 		public JavaMethodBuilder visibility(Visibility visibility){
 			this.visibility = visibility;
+			return this;
+		}
+		
+		/**
+		 * Sets the method as static
+		 *
+		 * @return this, to continue building
+		 */
+		public JavaMethodBuilder isStatic(){
+			isStatic = true;
+			return this;
+		}
+		
+		/**
+		 * @param isStatic Whether the method is static or not
+		 * @return this, to continue building
+		 */
+		public JavaMethodBuilder isStatic(boolean isStatic){
+			this.isStatic = isStatic;
 			return this;
 		}
 		
@@ -237,7 +263,7 @@ public class JavaMethod{
 		public JavaMethod build(){
 			checkForErrors();
 			
-			return new JavaMethod(javadoc, annotations, visibility, returnType, name, parameters, throwTypes, lines);
+			return new JavaMethod(javadoc, annotations, visibility, isStatic, returnType, name, parameters, throwTypes, lines);
 		}
 	}
 	
@@ -247,6 +273,8 @@ public class JavaMethod{
 	private final List<JavaAnnotation> annotations;
 	/** The {@link Visibility} of the method */
 	private final Visibility visibility;
+	/** Whether the method is static or not */
+	private final boolean isStatic;
 	/** The return type of the method */
 	private final String returnType;
 	/** The name of the method */
@@ -264,6 +292,7 @@ public class JavaMethod{
 	 * @param javadoc The {@link Javadoc} on the method
 	 * @param annotations The {@link JavaAnnotation annotations} on the method
 	 * @param visibility The {@link Visibility} of the method
+	 * @param isStatic Whether the method is static or not
 	 * @param returnType The return type of the method
 	 * @param name The name of the method
 	 * @param parameters The parameters used in the method - pairs of type, then name
@@ -271,11 +300,13 @@ public class JavaMethod{
 	 * @param lines The actual lines of code in the method
 	 */
 	private JavaMethod(
-			Javadoc javadoc, List<JavaAnnotation> annotations, Visibility visibility, String returnType, String name,
+			Javadoc javadoc, List<JavaAnnotation> annotations, Visibility visibility, boolean isStatic,
+			String returnType, String name,
 			List<Pair<String, String>> parameters, List<String> throwTypes, List<String> lines){
 		this.javadoc = javadoc;
 		this.annotations = annotations;
 		this.visibility = visibility;
+		this.isStatic = isStatic;
 		this.returnType = returnType;
 		this.name = name;
 		this.parameters = parameters;
@@ -309,6 +340,13 @@ public class JavaMethod{
 	 */
 	public Visibility getVisibility(){
 		return visibility;
+	}
+	
+	/**
+	 * @return Whether the method is static or not
+	 */
+	public boolean isStatic(){
+		return isStatic;
 	}
 	
 	/**
@@ -368,7 +406,7 @@ public class JavaMethod{
 		/*
 		 * Declaration
 		 */
-		StringBuilder declaration = new StringBuilder(visibility.getText() + " " + returnType);
+		StringBuilder declaration = new StringBuilder(visibility.getText() + (isStatic?" static":"") + " " + returnType);
 		
 		// Add name to declaration if we have it
 		if(StringUtil.isNotBlank(name)){

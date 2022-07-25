@@ -41,7 +41,12 @@ public class JavaField{
 	 *         <td>{@link Visibility#PRIVATE}</td>
 	 *     </tr>
 	 *     <tr>
-	 *         <td>final</td>
+	 *         <td>isStatic</td>
+	 *         <td>If the field is static or not</td>
+	 *         <td>false</td>
+	 *     </tr>
+	 *     <tr>
+	 *         <td>isFinal</td>
 	 *         <td>If the field is final or not</td>
 	 *         <td>false</td>
 	 *     </tr>
@@ -73,6 +78,8 @@ public class JavaField{
 		private List<JavaAnnotation> annotations = new ArrayList<>();
 		/** The {@link Visibility} of the field */
 		private Visibility visibility = Visibility.PRIVATE;
+		/** Whether the field is static or not */
+		private boolean isStatic = false;
 		/** Whether the field is final or not */
 		private boolean isFinal = false;
 		/** The type of the field */
@@ -118,6 +125,25 @@ public class JavaField{
 		 */
 		public JavaFieldBuilder visibility(Visibility visibility){
 			this.visibility = visibility;
+			return this;
+		}
+		
+		/**
+		 * Sets the field to be static
+		 *
+		 * @return this, to continue building
+		 */
+		public JavaFieldBuilder isStatic(){
+			isStatic = true;
+			return this;
+		}
+		
+		/**
+		 * @param isStatic Whether the field is static or not
+		 * @return this, to continue building
+		 */
+		public JavaFieldBuilder isStatic(boolean isStatic){
+			this.isStatic = isStatic;
 			return this;
 		}
 		
@@ -197,7 +223,7 @@ public class JavaField{
 		public JavaField build(){
 			checkForErrors();
 			
-			return new JavaField(javadoc, annotations, visibility, isFinal, type, name, value);
+			return new JavaField(javadoc, annotations, visibility, isStatic, isFinal, type, name, value);
 		}
 	}
 	
@@ -207,6 +233,8 @@ public class JavaField{
 	private final List<JavaAnnotation> annotations;
 	/** The {@link Visibility} of the field */
 	private final Visibility visibility;
+	/** Whether the field is static or not */
+	private final boolean isStatic;
 	/** Whether the field is final or not */
 	private final boolean isFinal;
 	/** The type of the field */
@@ -222,17 +250,19 @@ public class JavaField{
 	 * @param javadoc The {@link Javadoc} on the field
 	 * @param annotations The {@link JavaAnnotation annotations} on the field
 	 * @param visibility The {@link Visibility} of the field
+	 * @param isStatic Whether the field is static or not
 	 * @param isFinal Whether the field is final or not
 	 * @param type The type of the field
 	 * @param name The name of the field
 	 * @param value The value assigned to the field
 	 */
 	private JavaField(
-			Javadoc javadoc, List<JavaAnnotation> annotations, Visibility visibility, boolean isFinal,
+			Javadoc javadoc, List<JavaAnnotation> annotations, Visibility visibility, boolean isStatic, boolean isFinal,
 			String type, String name, String value){
 		this.javadoc = javadoc;
 		this.annotations = annotations;
 		this.visibility = visibility;
+		this.isStatic = isStatic;
 		this.isFinal = isFinal;
 		this.type = type;
 		this.name = name;
@@ -265,6 +295,13 @@ public class JavaField{
 	 */
 	public Visibility getVisibility(){
 		return visibility;
+	}
+	
+	/**
+	 * @return Whether the field is static or not
+	 */
+	public boolean isStatic(){
+		return isStatic;
 	}
 	
 	/**
@@ -315,7 +352,8 @@ public class JavaField{
 		}
 		
 		// Add field declaration
-		String declaration = visibility.getText() + (isFinal?" final":"") + " " + type + " " + name;
+		String declaration = visibility.getText() + (isStatic?" static":"") + (isFinal?" final":"") +
+				" " + type + " " + name;
 		// Add value to declaration if we have one
 		if(StringUtil.isNotBlank(value)){
 			declaration += " = " + value;
