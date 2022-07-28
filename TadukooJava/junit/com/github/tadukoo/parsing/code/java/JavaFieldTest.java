@@ -17,6 +17,11 @@ public class JavaFieldTest{
 			.build();
 	
 	@Test
+	public void testDefaultSectionComment(){
+		assertNull(field.getSectionComment());
+	}
+	
+	@Test
 	public void testDefaultJavadoc(){
 		assertNull(field.getJavadoc());
 	}
@@ -54,6 +59,15 @@ public class JavaFieldTest{
 	@Test
 	public void testSetName(){
 		assertEquals("test", field.getName());
+	}
+	
+	@Test
+	public void testSetSectionComment(){
+		field = JavaField.builder()
+				.type("int").name("test")
+				.sectionComment("Test comment")
+				.build();
+		assertEquals("Test comment", field.getSectionComment());
 	}
 	
 	@Test
@@ -190,6 +204,21 @@ public class JavaFieldTest{
 	}
 	
 	@Test
+	public void testToStringWithSectionComment(){
+		field = JavaField.builder()
+				.type("int").name("test")
+				.sectionComment("Test comment")
+				.build();
+		String javaString = """
+				/*
+				 * Test comment
+				 */
+				
+				private int test""";
+		assertEquals(javaString, field.toString());
+	}
+	
+	@Test
 	public void testToStringWithJavadoc(){
 		field = JavaField.builder()
 				.type("int").name("test")
@@ -265,6 +294,7 @@ public class JavaFieldTest{
 	public void testToStringWithEverything(){
 		field = JavaField.builder()
 				.type("int").name("test")
+				.sectionComment("Test comment")
 				.javadoc(Javadoc.builder().build())
 				.annotation(JavaAnnotation.builder().name("Test").build())
 				.annotation(JavaAnnotation.builder().name("Derp").build())
@@ -273,6 +303,10 @@ public class JavaFieldTest{
 				.value("42")
 				.build();
 		String javaString = """
+				/*
+				 * Test comment
+				 */
+				
 				/**
 				 */
 				@Test

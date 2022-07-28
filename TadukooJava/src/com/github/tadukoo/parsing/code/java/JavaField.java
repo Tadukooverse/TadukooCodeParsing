@@ -26,6 +26,11 @@ public class JavaField{
 	 *         <th>Default or Required</th>
 	 *     </tr>
 	 *     <tr>
+	 *         <td>sectionComment</td>
+	 *         <td>The section comment above the field</td>
+	 *         <td>null</td>
+	 *     </tr>
+	 *     <tr>
 	 *         <td>javadoc</td>
 	 *         <td>The {@link Javadoc} on the field</td>
 	 *         <td>null</td>
@@ -72,6 +77,8 @@ public class JavaField{
 	 * @since Alpha v.0.2
 	 */
 	public static class JavaFieldBuilder{
+		/** The section comment above the field */
+		private String sectionComment = null;
 		/** The {@link Javadoc} on the field */
 		private Javadoc javadoc = null;
 		/** The {@link JavaAnnotation annotations} on the field */
@@ -91,6 +98,15 @@ public class JavaField{
 		
 		/** Not allowed to create outside JavaField */
 		private JavaFieldBuilder(){ }
+		
+		/**
+		 * @param sectionComment The section comment above the field
+		 * @return this, to continue building
+		 */
+		public JavaFieldBuilder sectionComment(String sectionComment){
+			this.sectionComment = sectionComment;
+			return this;
+		}
 		
 		/**
 		 * @param javadoc The {@link Javadoc} on the field
@@ -223,10 +239,12 @@ public class JavaField{
 		public JavaField build(){
 			checkForErrors();
 			
-			return new JavaField(javadoc, annotations, visibility, isStatic, isFinal, type, name, value);
+			return new JavaField(sectionComment, javadoc, annotations, visibility, isStatic, isFinal, type, name, value);
 		}
 	}
 	
+	/** The section comment above the field */
+	private final String sectionComment;
 	/** The {@link Javadoc} on the field */
 	private final Javadoc javadoc;
 	/** The {@link JavaAnnotation annotations} on the field */
@@ -247,6 +265,7 @@ public class JavaField{
 	/**
 	 * Constructs a Java Field with the given parameters
 	 *
+	 * @param sectionComment The section comment above the field
 	 * @param javadoc The {@link Javadoc} on the field
 	 * @param annotations The {@link JavaAnnotation annotations} on the field
 	 * @param visibility The {@link Visibility} of the field
@@ -257,8 +276,10 @@ public class JavaField{
 	 * @param value The value assigned to the field
 	 */
 	private JavaField(
-			Javadoc javadoc, List<JavaAnnotation> annotations, Visibility visibility, boolean isStatic, boolean isFinal,
+			String sectionComment, Javadoc javadoc, List<JavaAnnotation> annotations,
+			Visibility visibility, boolean isStatic, boolean isFinal,
 			String type, String name, String value){
+		this.sectionComment = sectionComment;
 		this.javadoc = javadoc;
 		this.annotations = annotations;
 		this.visibility = visibility;
@@ -274,6 +295,13 @@ public class JavaField{
 	 */
 	public static JavaFieldBuilder builder(){
 		return new JavaFieldBuilder();
+	}
+	
+	/**
+	 * @return The section comment above the field
+	 */
+	public String getSectionComment(){
+		return sectionComment;
 	}
 	
 	/**
@@ -338,6 +366,14 @@ public class JavaField{
 	@Override
 	public String toString(){
 		List<String> content = new ArrayList<>();
+		
+		// Section comment
+		if(StringUtil.isNotBlank(sectionComment)){
+			content.add("/*");
+			content.add(" * " + sectionComment);
+			content.add(" */");
+			content.add("");
+		}
 		
 		// Javadoc
 		if(javadoc != null){

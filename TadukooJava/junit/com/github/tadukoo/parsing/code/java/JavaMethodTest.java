@@ -16,6 +16,11 @@ public class JavaMethodTest{
 	private JavaMethod method = JavaMethod.builder().returnType("int").build();
 	
 	@Test
+	public void testDefaultSectionComment(){
+		assertNull(method.getSectionComment());
+	}
+	
+	@Test
 	public void testDefaultJavadoc(){
 		assertNull(method.getJavadoc());
 	}
@@ -53,6 +58,15 @@ public class JavaMethodTest{
 	@Test
 	public void testDefaultLines(){
 		assertTrue(method.getLines().isEmpty());
+	}
+	
+	@Test
+	public void testSetSectionComment(){
+		method = JavaMethod.builder()
+				.returnType("int")
+				.sectionComment("Test section")
+				.build();
+		assertEquals("Test section", method.getSectionComment());
 	}
 	
 	@Test
@@ -203,6 +217,22 @@ public class JavaMethodTest{
 	}
 	
 	@Test
+	public void testToStringWithSectionComment(){
+		method = JavaMethod.builder()
+				.returnType("int")
+				.sectionComment("Test comment")
+				.build();
+		String javaString = """
+				/*
+				 * Test comment
+				 */
+				
+				public int(){
+				}""";
+		assertEquals(javaString, method.toString());
+	}
+	
+	@Test
 	public void testToStringWithJavadoc(){
 		method = JavaMethod.builder()
 				.returnType("int")
@@ -313,6 +343,7 @@ public class JavaMethodTest{
 		JavaAnnotation test = JavaAnnotation.builder().name("Test").build();
 		JavaAnnotation derp = JavaAnnotation.builder().name("Derp").build();
 		method = JavaMethod.builder().returnType("int")
+				.sectionComment("Test comment")
 				.javadoc(Javadoc.builder().build())
 				.annotation(test).annotation(derp).name("someMethod")
 				.isStatic()
@@ -320,6 +351,10 @@ public class JavaMethodTest{
 				.throwType("Throwable").throwType("Exception")
 				.line("doSomething();").line("return 42;").build();
 		String javaString = """
+				/*
+				 * Test comment
+				 */
+				
 				/**
 				 */
 				@Test

@@ -27,6 +27,11 @@ public class JavaMethod{
 	 *         <th>Default or Required</th>
 	 *     </tr>
 	 *     <tr>
+	 *         <td>sectionComment</td>
+	 *         <td>The section comment above the method</td>
+	 *         <td>null</td>
+	 *     </tr>
+	 *     <tr>
 	 *         <td>javadoc</td>
 	 *         <td>The {@link Javadoc} on the method</td>
 	 *         <td>null</td>
@@ -78,6 +83,8 @@ public class JavaMethod{
 	 * @since Alpha v.0.2
 	 */
 	public static class JavaMethodBuilder{
+		/** The section comment above the method */
+		private String sectionComment = null;
 		/** The {@link Javadoc} on the method */
 		private Javadoc javadoc = null;
 		/** The {@link JavaAnnotation annotations} on the method */
@@ -99,6 +106,15 @@ public class JavaMethod{
 		
 		/** Can't create outside JavaMethod */
 		private JavaMethodBuilder(){ }
+		
+		/**
+		 * @param sectionComment The section comment above the method
+		 * @return this, to continue building
+		 */
+		public JavaMethodBuilder sectionComment(String sectionComment){
+			this.sectionComment = sectionComment;
+			return this;
+		}
 		
 		/**
 		 * @param javadoc The {@link Javadoc} on the method
@@ -263,10 +279,14 @@ public class JavaMethod{
 		public JavaMethod build(){
 			checkForErrors();
 			
-			return new JavaMethod(javadoc, annotations, visibility, isStatic, returnType, name, parameters, throwTypes, lines);
+			return new JavaMethod(sectionComment, javadoc, annotations,
+					visibility, isStatic, returnType, name,
+					parameters, throwTypes, lines);
 		}
 	}
 	
+	/** The section comment above the method */
+	private final String sectionComment;
 	/** The {@link Javadoc} on the method */
 	private final Javadoc javadoc;
 	/** The {@link JavaAnnotation annotations} on the method */
@@ -289,6 +309,7 @@ public class JavaMethod{
 	/**
 	 * Constructs a new Java Method with the given parameters
 	 *
+	 * @param sectionComment The section comment above the method
 	 * @param javadoc The {@link Javadoc} on the method
 	 * @param annotations The {@link JavaAnnotation annotations} on the method
 	 * @param visibility The {@link Visibility} of the method
@@ -300,9 +321,10 @@ public class JavaMethod{
 	 * @param lines The actual lines of code in the method
 	 */
 	private JavaMethod(
-			Javadoc javadoc, List<JavaAnnotation> annotations, Visibility visibility, boolean isStatic,
-			String returnType, String name,
+			String sectionComment, Javadoc javadoc, List<JavaAnnotation> annotations,
+			Visibility visibility, boolean isStatic, String returnType, String name,
 			List<Pair<String, String>> parameters, List<String> throwTypes, List<String> lines){
+		this.sectionComment = sectionComment;
 		this.javadoc = javadoc;
 		this.annotations = annotations;
 		this.visibility = visibility;
@@ -319,6 +341,13 @@ public class JavaMethod{
 	 */
 	public static JavaMethodBuilder builder(){
 		return new JavaMethodBuilder();
+	}
+	
+	/**
+	 * @return The section comment above the method
+	 */
+	public String getSectionComment(){
+		return sectionComment;
 	}
 	
 	/**
@@ -390,6 +419,14 @@ public class JavaMethod{
 	@Override
 	public String toString(){
 		List<String> content = new ArrayList<>();
+		
+		// Section Comment
+		if(StringUtil.isNotBlank(sectionComment)){
+			content.add("/*");
+			content.add(" * " + sectionComment);
+			content.add(" */");
+			content.add("");
+		}
 		
 		// Javadoc
 		if(javadoc != null){
