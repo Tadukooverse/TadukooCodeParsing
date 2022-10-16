@@ -523,12 +523,13 @@ public class JavaClassTest{
 	public void testToStringWithImports(){
 		clazz = JavaClass.builder()
 				.packageName("some.package").className("AClassName")
-				.imports(ListUtil.createList("com.example.*", "com.github.tadukoo.*"))
+				.imports(ListUtil.createList("com.example.*", null, "com.github.tadukoo.*"))
 				.build();
 		String javaString = """
 				package some.package;
 				
 				import com.example.*;
+				
 				import com.github.tadukoo.*;
 				
 				public class AClassName{
@@ -542,12 +543,13 @@ public class JavaClassTest{
 	public void testToStringWithStaticImports(){
 		clazz = JavaClass.builder()
 				.packageName("some.package").className("AClassName")
-				.staticImports(ListUtil.createList("com.example.Test", "com.github.tadukoo.test.*"))
+				.staticImports(ListUtil.createList("com.example.Test", null, "com.github.tadukoo.test.*"))
 				.build();
 		String javaString = """
 				package some.package;
 				
 				import static com.example.Test;
+				
 				import static com.github.tadukoo.test.*;
 				
 				public class AClassName{
@@ -629,8 +631,8 @@ public class JavaClassTest{
 	public void testToStringWithEverything(){
 		clazz = JavaClass.builder()
 				.packageName("some.package")
-				.imports(ListUtil.createList("com.example.*", "com.github.tadukoo.*"))
-				.staticImports(ListUtil.createList("com.example.Test", "com.github.tadukoo.test.*"))
+				.imports(ListUtil.createList("com.example.*", "", "com.github.tadukoo.*"))
+				.staticImports(ListUtil.createList("com.example.Test", "", "com.github.tadukoo.test.*"))
 				.javadoc(Javadoc.builder().build())
 				.annotation(JavaAnnotation.builder().name("Test").build())
 				.annotation(JavaAnnotation.builder().name("Derp").build())
@@ -647,9 +649,11 @@ public class JavaClassTest{
 				package some.package;
 				
 				import com.example.*;
+				
 				import com.github.tadukoo.*;
 				
 				import static com.example.Test;
+				
 				import static com.github.tadukoo.test.*;
 				
 				/**

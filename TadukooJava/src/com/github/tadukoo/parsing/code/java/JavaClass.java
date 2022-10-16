@@ -563,7 +563,11 @@ public class JavaClass{
 			// Newline between package declaration + imports
 			content.add("");
 			for(String singleImport: imports){
-				content.add("import " + singleImport + ";");
+				if(StringUtil.isNotBlank(singleImport)){
+					content.add("import " + singleImport + ";");
+				}else{
+					content.add("");
+				}
 			}
 		}
 		
@@ -572,7 +576,11 @@ public class JavaClass{
 			// Newline between package declaration/imports + static imports
 			content.add("");
 			for(String staticImport: staticImports){
-				content.add("import static " + staticImport + ";");
+				if(StringUtil.isNotBlank(staticImport)){
+					content.add("import static " + staticImport + ";");
+				}else{
+					content.add("");
+				}
 			}
 		}
 		
