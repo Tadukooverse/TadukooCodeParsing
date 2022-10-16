@@ -9,6 +9,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -433,5 +434,64 @@ public class JavadocTest{
 				 *\040
 				 * @return this
 				 */""", doc.toString());
+	}
+	
+	/*
+	 * Test Equals
+	 */
+	
+	@Test
+	public void testEquals(){
+		doc = Javadoc.builder()
+				.content("test")
+				.content("derp")
+				.author("Logan Ferree (Tadukoo)")
+				.version("Alpha v.0.1")
+				.since("Alpha v.0.0.1")
+				.param("test", "yes")
+				.param("derp", "no")
+				.returnVal("this, to continue building")
+				.build();
+		Javadoc otherDoc = Javadoc.builder()
+				.content("test")
+				.content("derp")
+				.author("Logan Ferree (Tadukoo)")
+				.version("Alpha v.0.1")
+				.since("Alpha v.0.0.1")
+				.param("test", "yes")
+				.param("derp", "no")
+				.returnVal("this, to continue building")
+				.build();
+		assertEquals(otherDoc, doc);
+	}
+	
+	@Test
+	public void testEqualsNotEqual(){
+		doc = Javadoc.builder()
+				.content("test")
+				.content("derp")
+				.author("Logan Ferree (Tadukoo)")
+				.version("Alpha v.0.1")
+				.since("Alpha v.0.0.1")
+				.param("test", "yes")
+				.param("derp", "no")
+				.returnVal("this, to continue building")
+				.build();
+		Javadoc otherDoc = Javadoc.builder()
+				.content("tes")
+				.content("derp")
+				.author("Logan Ferree (Tadukoo)")
+				.version("Alpha v.0.1")
+				.since("Alpha v.0.0.1")
+				.param("test", "yes")
+				.param("derp", "no")
+				.returnVal("this, to continue building")
+				.build();
+		assertNotEquals(otherDoc, doc);
+	}
+	
+	@Test
+	public void testEqualsDifferentType(){
+		assertNotEquals(doc, "test");
 	}
 }

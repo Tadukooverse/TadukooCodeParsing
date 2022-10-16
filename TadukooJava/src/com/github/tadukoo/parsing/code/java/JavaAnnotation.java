@@ -9,7 +9,8 @@ import java.util.List;
  * Represents an Annotation in Java.
  *
  * @author Logan Ferree (Tadukoo)
- * @version Alpha v.0.3
+ * @version Alpha v.0.3.3
+ * @since Alpha v.0.3
  */
 public class JavaAnnotation{
 	
@@ -31,7 +32,8 @@ public class JavaAnnotation{
 	 * </table>
 	 *
 	 * @author Logan Ferree (Tadukoo)
-	 * @version Alpha v.0.3
+	 * @version Alpha v.0.3.3
+	 * @since Alpha v.0.3
 	 */
 	public static class JavaAnnotationBuilder{
 		/** The name of the annotation */
@@ -109,5 +111,15 @@ public class JavaAnnotation{
 	@Override
 	public String toString(){
 		return "@" + name;
+	}
+	
+	/** {@inheritDoc} */
+	@Override
+	public boolean equals(Object otherAnnotation){
+		if(otherAnnotation instanceof JavaAnnotation annotation){
+			return StringUtil.equals(this.toString(), annotation.toString());
+		}else{
+			return false;
+		}
 	}
 }

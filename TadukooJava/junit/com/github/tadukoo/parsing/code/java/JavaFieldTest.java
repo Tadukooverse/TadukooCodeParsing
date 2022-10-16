@@ -7,6 +7,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -313,5 +314,64 @@ public class JavaFieldTest{
 				@Derp
 				private static final int test = 42""";
 		assertEquals(javaString, field.toString());
+	}
+	
+	/*
+	 * Test Equals
+	 */
+	
+	@Test
+	public void testEquals(){
+		field = JavaField.builder()
+				.type("int").name("test")
+				.sectionComment("Test comment")
+				.javadoc(Javadoc.builder().build())
+				.annotation(JavaAnnotation.builder().name("Test").build())
+				.annotation(JavaAnnotation.builder().name("Derp").build())
+				.isStatic()
+				.isFinal()
+				.value("42")
+				.build();
+		JavaField otherField = JavaField.builder()
+				.type("int").name("test")
+				.sectionComment("Test comment")
+				.javadoc(Javadoc.builder().build())
+				.annotation(JavaAnnotation.builder().name("Test").build())
+				.annotation(JavaAnnotation.builder().name("Derp").build())
+				.isStatic()
+				.isFinal()
+				.value("42")
+				.build();
+		assertEquals(field, otherField);
+	}
+	
+	@Test
+	public void testEqualsNotEqual(){
+		field = JavaField.builder()
+				.type("int").name("test")
+				.sectionComment("Test comment")
+				.javadoc(Javadoc.builder().build())
+				.annotation(JavaAnnotation.builder().name("Test").build())
+				.annotation(JavaAnnotation.builder().name("Derp").build())
+				.isStatic()
+				.isFinal()
+				.value("42")
+				.build();
+		JavaField otherField = JavaField.builder()
+				.type("int").name("test")
+				.sectionComment("Test comment")
+				.javadoc(Javadoc.builder().build())
+				.annotation(JavaAnnotation.builder().name("Test").build())
+				.annotation(JavaAnnotation.builder().name("Derp").build())
+				.isStatic()
+				.isFinal()
+				.value("41")
+				.build();
+		assertNotEquals(field, otherField);
+	}
+	
+	@Test
+	public void testEqualsDifferentType(){
+		assertNotEquals(field, "testing");
 	}
 }

@@ -8,6 +8,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -364,5 +365,60 @@ public class JavaMethodTest{
 					return 42;
 				}""";
 		assertEquals(javaString, method.toString());
+	}
+	
+	/*
+	 * Test Equals
+	 */
+	
+	@Test
+	public void testEquals(){
+		JavaAnnotation test = JavaAnnotation.builder().name("Test").build();
+		JavaAnnotation derp = JavaAnnotation.builder().name("Derp").build();
+		method = JavaMethod.builder().returnType("int")
+				.sectionComment("Test comment")
+				.javadoc(Javadoc.builder().build())
+				.annotation(test).annotation(derp).name("someMethod")
+				.isStatic()
+				.parameter("String", "text").parameter("int", "something")
+				.throwType("Throwable").throwType("Exception")
+				.line("doSomething();").line("return 42;").build();
+		JavaMethod otherMethod = JavaMethod.builder().returnType("int")
+				.sectionComment("Test comment")
+				.javadoc(Javadoc.builder().build())
+				.annotation(test).annotation(derp).name("someMethod")
+				.isStatic()
+				.parameter("String", "text").parameter("int", "something")
+				.throwType("Throwable").throwType("Exception")
+				.line("doSomething();").line("return 42;").build();
+		assertEquals(method, otherMethod);
+	}
+	
+	@Test
+	public void testEqualsNotEqual(){
+		JavaAnnotation test = JavaAnnotation.builder().name("Test").build();
+		JavaAnnotation derp = JavaAnnotation.builder().name("Derp").build();
+		method = JavaMethod.builder().returnType("int")
+				.sectionComment("Test comment")
+				.javadoc(Javadoc.builder().build())
+				.annotation(test).annotation(derp).name("someMethod")
+				.isStatic()
+				.parameter("String", "text").parameter("int", "something")
+				.throwType("Throwable").throwType("Exception")
+				.line("doSomething();").line("return 42;").build();
+		JavaMethod otherMethod = JavaMethod.builder().returnType("int")
+				.sectionComment("Test comment")
+				.javadoc(Javadoc.builder().build())
+				.annotation(test).annotation(derp).name("someMethod")
+				.isStatic()
+				.parameter("String", "text").parameter("int", "something")
+				.throwType("Throwable").throwType("Exception")
+				.line("doSomething();").line("return 41;").build();
+		assertNotEquals(method, otherMethod);
+	}
+	
+	@Test
+	public void testEqualsDifferentTypes(){
+		assertNotEquals(method, "testing");
 	}
 }

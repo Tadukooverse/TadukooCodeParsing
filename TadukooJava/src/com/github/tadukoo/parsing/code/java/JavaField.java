@@ -398,4 +398,14 @@ public class JavaField{
 		
 		return StringUtil.buildStringWithNewLines(content);
 	}
+	
+	/** {@inheritDoc} */
+	@Override
+	public boolean equals(Object otherField){
+		if(otherField instanceof JavaField field){
+			return StringUtil.equals(this.toString(), field.toString());
+		}else{
+			return false;
+		}
+	}
 }

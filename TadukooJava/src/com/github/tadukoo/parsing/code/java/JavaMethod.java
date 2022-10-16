@@ -491,4 +491,14 @@ public class JavaMethod{
 		
 		return StringUtil.buildStringWithNewLines(content);
 	}
+	
+	/** {@inheritDoc} */
+	@Override
+	public boolean equals(Object otherMethod){
+		if(otherMethod instanceof JavaMethod method){
+			return StringUtil.equals(this.toString(), method.toString());
+		}else{
+			return false;
+		}
+	}
 }

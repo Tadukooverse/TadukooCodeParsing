@@ -648,4 +648,14 @@ public class JavaClass{
 		// Build the full string
 		return StringUtil.buildStringWithNewLines(content);
 	}
+	
+	/** {@inheritDoc} */
+	@Override
+	public boolean equals(Object otherClass){
+		if(otherClass instanceof JavaClass clazz){
+			return StringUtil.equals(toString(), clazz.toString());
+		}else{
+			return false;
+		}
+	}
 }

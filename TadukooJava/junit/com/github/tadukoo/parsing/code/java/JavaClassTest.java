@@ -7,6 +7,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -755,5 +756,55 @@ public class JavaClassTest{
 				}
 				""";
 		assertEquals(javaString, clazz.toString());
+	}
+	
+	@Test
+	public void testEquals(){
+		clazz = JavaClass.builder()
+				.packageName("some.package")
+				.imports(ListUtil.createList("com.example.*", "", "com.github.tadukoo.*"))
+				.staticImports(ListUtil.createList("com.example.Test", "", "com.github.tadukoo.test.*"))
+				.javadoc(Javadoc.builder().build())
+				.annotation(JavaAnnotation.builder().name("Test").build())
+				.annotation(JavaAnnotation.builder().name("Derp").build())
+				.className("AClassName").superClassName("AnotherClassName")
+				.innerClass(JavaClass.builder().innerClass().className("BClassName").build())
+				.innerClass(JavaClass.builder().innerClass().className("CClassName").build())
+				.field(JavaField.builder().type("int").name("test").build())
+				.field(JavaField.builder().type("String").name("derp").build())
+				.method(JavaMethod.builder().returnType("AClassName").build())
+				.method(JavaMethod.builder().returnType("String").name("getSomething")
+						.parameter("int", "test").line("return doSomething();").build())
+				.build();
+		JavaClass otherClass = JavaClass.builder()
+				.packageName("some.package")
+				.imports(ListUtil.createList("com.example.*", "", "com.github.tadukoo.*"))
+				.staticImports(ListUtil.createList("com.example.Test", "", "com.github.tadukoo.test.*"))
+				.javadoc(Javadoc.builder().build())
+				.annotation(JavaAnnotation.builder().name("Test").build())
+				.annotation(JavaAnnotation.builder().name("Derp").build())
+				.className("AClassName").superClassName("AnotherClassName")
+				.innerClass(JavaClass.builder().innerClass().className("BClassName").build())
+				.innerClass(JavaClass.builder().innerClass().className("CClassName").build())
+				.field(JavaField.builder().type("int").name("test").build())
+				.field(JavaField.builder().type("String").name("derp").build())
+				.method(JavaMethod.builder().returnType("AClassName").build())
+				.method(JavaMethod.builder().returnType("String").name("getSomething")
+						.parameter("int", "test").line("return doSomething();").build())
+				.build();
+		assertEquals(clazz, otherClass);
+	}
+	
+	@Test
+	public void testEqualsNotEqual(){
+		JavaClass otherClass = JavaClass.builder()
+				.packageName("some.package.different").className("AClassName")
+				.build();
+		assertNotEquals(clazz, otherClass);
+	}
+	
+	@Test
+	public void testEqualsNotSameType(){
+		assertNotEquals(clazz, "testing");
 	}
 }

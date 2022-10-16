@@ -383,4 +383,14 @@ public class Javadoc{
 		
 		return doc.toString();
 	}
+	
+	/** {@inheritDoc} */
+	@Override
+	public boolean equals(Object otherJavadoc){
+		if(otherJavadoc instanceof Javadoc doc){
+			return StringUtil.equals(this.toString(), doc.toString());
+		}else{
+			return false;
+		}
+	}
 }
