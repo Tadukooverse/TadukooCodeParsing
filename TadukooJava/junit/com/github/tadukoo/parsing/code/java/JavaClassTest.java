@@ -605,6 +605,32 @@ public class JavaClassTest{
 	}
 	
 	@Test
+	public void testToStringWithFieldsWithJavadocsOnFields(){
+		clazz = JavaClass.builder()
+				.packageName("some.package").className("AClassName")
+				.field(JavaField.builder()
+						.javadoc(Javadoc.builder()
+								.condensed()
+								.content("something")
+								.build())
+						.type("int").name("test")
+						.build())
+				.field(JavaField.builder().type("String").name("derp").build())
+				.build();
+		String javaString = """
+				package some.package;
+				
+				public class AClassName{
+				\t
+					/** something */
+					private int test;
+					private String derp;
+				}
+				""";
+		assertEquals(javaString, clazz.toString());
+	}
+	
+	@Test
 	public void testToStringWithMethods(){
 		clazz = JavaClass.builder()
 				.packageName("some.package").className("AClassName")

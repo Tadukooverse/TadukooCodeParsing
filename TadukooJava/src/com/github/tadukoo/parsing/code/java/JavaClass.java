@@ -618,7 +618,8 @@ public class JavaClass{
 		// Fields on the class
 		if(ListUtil.isNotBlank(fields)){
 			for(JavaField field: fields){
-				content.add("\t" + field.toString() + ";");
+				// Use indent all lines because Javadoc may make it multiline
+				content.add(StringUtil.indentAllLines(field.toString()) + ";");
 			}
 		}
 		
